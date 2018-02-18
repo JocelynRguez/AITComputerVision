@@ -131,7 +131,7 @@ svdTest(void)
 	R2Point p1(1.2,3.5);
 	R2Point p2(2.1,2.2);
 	R2Point p3(0.2,1.6);
-	R2Point p4(0.0,0.5);
+	R2Point p4(0.0,0.25);
 	R2Point p5(-0.2,4.2);
 
 	// build the 5x6 matrix of equations
@@ -283,7 +283,7 @@ SobelX(void)
                     kernelx[0][2]*tempImg.Pixel(i+1, j-1) +
                     kernelx[1][0]*tempImg.Pixel(i-1, j) +
                     kernelx[1][1]*tempImg.Pixel(i, j) +
-                    kernelx[1][2]*tempImg.Pixel(i+1, j+1) +
+                    kernelx[1][2]*tempImg.Pixel(i+1, j) +
                     kernelx[2][0]*tempImg.Pixel(i-1, j+1) +
                     kernelx[2][1]*tempImg.Pixel(i, j+1) +
                     kernelx[2][2]*tempImg.Pixel(i+1, j+1);
@@ -312,10 +312,14 @@ SobelY(void)
     for (int j = 0;  j < height-2; j++) {
 
       //change tempImg
-      *somePixel = kernely[0][0]*tempImg.Pixel(i-1, j-1) + kernely[0][1]*tempImg.Pixel(i, j-1) +
-                    kernely[0][2]*tempImg.Pixel(i+1, j-1) + kernely[1][0]*tempImg.Pixel(i-1, j) +
-                    kernely[1][1]*tempImg.Pixel(i, j) + kernely[1][2]*tempImg.Pixel(i+1, j+1) +
-                    kernely[2][0]*tempImg.Pixel(i-1, j+1) + kernely[2][1]*tempImg.Pixel(i, j+1) +
+      *somePixel = kernely[0][0]*tempImg.Pixel(i-1, j-1) +
+                    kernely[0][1]*tempImg.Pixel(i, j-1) +
+                    kernely[0][2]*tempImg.Pixel(i+1, j-1) +
+                    kernely[1][0]*tempImg.Pixel(i-1, j) +
+                    kernely[1][1]*tempImg.Pixel(i, j) +
+                    kernely[1][2]*tempImg.Pixel(i+1, j) +
+                    kernely[2][0]*tempImg.Pixel(i-1, j+1) +
+                    kernely[2][1]*tempImg.Pixel(i, j+1) +
                     kernely[2][2]*tempImg.Pixel(i+1, j+1);
 
       //temp image
@@ -398,9 +402,52 @@ void R2Image::
 Sharpen()
 {
   // Sharpen an image using a linear filter. Use a kernel of your choosing.
-  float kernel[3][3] = {};
-  // FILL IN IMPLEMENTATION HERE (REMOVE PRINT STATEMENT WHEN DONE)
-  fprintf(stderr, "Sharpen() not implemented\n");
+  float kernel[5][5] = {{-0.07,  -0.07, -0.07, -0.07, -0.07},
+                        {-0.07, -0.009, -0.009, -0.009, -0.07},
+                        {-0.07, -0.009, 2.15    , -0.009, -0.07},
+                        {-0.07, -0.009, -0.009, -0.009, -0.07},
+                        {-0.07, -0.07, -0.07, -0.07, -0.07}
+                      };
+
+  R2Image tempImg(*this);
+
+  R2Pixel* somePixel = new R2Pixel();
+
+  for (int i = 0; i < width-2; i++) {
+    for (int j = 0;  j < height-2; j++) {
+
+      //change tempImg
+      *somePixel = kernel[0][0]*tempImg.Pixel(i-2, j-2) +
+                    kernel[0][1]*tempImg.Pixel(i-1, j-2) +
+                    kernel[0][2]*tempImg.Pixel(i, j-2) +
+                    kernel[0][3]*tempImg.Pixel(i+1, j-2) +
+                    kernel[0][4]*tempImg.Pixel(i+2, j-2) + ///
+                    kernel[1][0]*tempImg.Pixel(i-2, j-1) +
+                    kernel[1][1]*tempImg.Pixel(i-1, j-1) +
+                    kernel[1][2]*tempImg.Pixel(i, j-1) +
+                    kernel[1][3]*tempImg.Pixel(i+1, j-1) +
+                    kernel[1][4]*tempImg.Pixel(i+2, j-1) + ///
+                    kernel[2][0]*tempImg.Pixel(i-2, j) +
+                    kernel[2][1]*tempImg.Pixel(i-1, j) +
+                    kernel[2][2]*tempImg.Pixel(i, j) +
+                    kernel[2][3]*tempImg.Pixel(i+1, j) +
+                    kernel[2][4]*tempImg.Pixel(i+2, j) + ///
+                    kernel[3][0]*tempImg.Pixel(i-2, j+1) +
+                    kernel[3][1]*tempImg.Pixel(i-1, j+1) +
+                    kernel[3][2]*tempImg.Pixel(i, j+1) +
+                    kernel[3][3]*tempImg.Pixel(i+1, j+1) +
+                    kernel[3][4]*tempImg.Pixel(i+2, j+1) + ///
+                    kernel[4][0]*tempImg.Pixel(i-2, j+2) +
+                    kernel[4][1]*tempImg.Pixel(i-1, j+2) +
+                    kernel[4][2]*tempImg.Pixel(i, j+2) +
+                    kernel[4][3]*tempImg.Pixel(i+1, j+2) +
+                    kernel[4][4]*tempImg.Pixel(i+2, j+2);
+
+      //temp image
+      Pixel(i,j) = *somePixel;
+    }
+  }
+
 }
 
 
