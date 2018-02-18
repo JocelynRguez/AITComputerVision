@@ -267,19 +267,63 @@ Brighten(double factor)
 void R2Image::
 SobelX(void)
 {
-	// Apply the Sobel oprator to the image in X direction
+  float kernelx[3][3] =  {{-1, 0, 1},
+                          {-2, 0, 2},
+                          {-1, 0, -1}};
 
-  // FILL IN IMPLEMENTATION HERE (REMOVE PRINT STATEMENT WHEN DONE)
-  fprintf(stderr, "SobelX() not implemented\n");
+  R2Image tempImg(*this);
+  R2Pixel* somePixel = new R2Pixel();
+
+	// Apply the Sobel oprator to the image in X direction
+  for (int i = 0; i < width-1; i++) {
+    for (int j = 0;  j < height-1; j++) {
+
+        *somePixel = kernelx[0][0]*tempImg.Pixel(i-1, j-1) +
+                    kernelx[0][1]*tempImg.Pixel(i, j-1) +
+                    kernelx[0][2]*tempImg.Pixel(i+1, j-1) +
+                    kernelx[1][0]*tempImg.Pixel(i-1, j) +
+                    kernelx[1][1]*tempImg.Pixel(i, j) +
+                    kernelx[1][2]*tempImg.Pixel(i+1, j+1) +
+                    kernelx[2][0]*tempImg.Pixel(i-1, j+1) +
+                    kernelx[2][1]*tempImg.Pixel(i, j+1) +
+                    kernelx[2][2]*tempImg.Pixel(i+1, j+1);
+
+      Pixel(i,j) = *somePixel;
+    }
+  }
+
+  //*this = tempImg;
+
 }
 
 void R2Image::
 SobelY(void)
 {
 	// Apply the Sobel oprator to the image in Y direction
+  float kernely[3][3] = {{-1, -2, -1},
+                          {0, 0, 0},
+                          {1, 2, 1}};
 
-  // FILL IN IMPLEMENTATION HERE (REMOVE PRINT STATEMENT WHEN DONE)
-  fprintf(stderr, "SobelY() not implemented\n");
+  R2Image tempImg(*this);
+
+  R2Pixel* somePixel = new R2Pixel();
+
+  for (int i = 0; i < width-2; i++) {
+    for (int j = 0;  j < height-2; j++) {
+
+      //change tempImg
+      *somePixel = kernely[0][0]*tempImg.Pixel(i-1, j-1) + kernely[0][1]*tempImg.Pixel(i, j-1) +
+                    kernely[0][2]*tempImg.Pixel(i+1, j-1) + kernely[1][0]*tempImg.Pixel(i-1, j) +
+                    kernely[1][1]*tempImg.Pixel(i, j) + kernely[1][2]*tempImg.Pixel(i+1, j+1) +
+                    kernely[2][0]*tempImg.Pixel(i-1, j+1) + kernely[2][1]*tempImg.Pixel(i, j+1) +
+                    kernely[2][2]*tempImg.Pixel(i+1, j+1);
+
+      //temp image
+      Pixel(i,j) = *somePixel;
+    }
+  }
+
+
 }
 
 void R2Image::
@@ -327,7 +371,6 @@ ChangeSaturation(double factor)
   }
 
 
-  fprintf(stderr, "ChangeSaturation(%g) running!\n", factor);
 }
 // Linear filtering ////////////////////////////////////////////////
 void R2Image::
@@ -355,7 +398,7 @@ void R2Image::
 Sharpen()
 {
   // Sharpen an image using a linear filter. Use a kernel of your choosing.
-
+  float kernel[3][3] = {};
   // FILL IN IMPLEMENTATION HERE (REMOVE PRINT STATEMENT WHEN DONE)
   fprintf(stderr, "Sharpen() not implemented\n");
 }

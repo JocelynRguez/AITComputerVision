@@ -19,17 +19,23 @@ popd
 
 # generate the result pictures
 
-src/imgpro input/dogmayor.jpg output/dogmayor_0.5.jpg \
+src/imgpro input/group.jpg output/group_0.5.jpg \
     -brightness 0.5
 
-src/imgpro input/dogmayor.jpg output/dogmayor_1.0.jpg \
+src/imgpro input/group.jpg output/group_1.0.jpg \
     -brightness 1.0
 
-src/imgpro input/dogmayor.jpg output/dogmayor_1.5.jpg \
+src/imgpro input/group.jpg output/group_1.5.jpg \
     -brightness 1.5
 
-src/imgpro input/dogmayor.jpg output/dogmayor_sat_1.5.jpg \
-        -saturation 1.5
+src/imgpro input/group.jpg output/group_sat_0.5.jpg \
+                        -saturation 0.5
 
-src/imgpro input/dogmayor.jpg output/dogmayor_sat_2.0.jpg \
-                -saturation 2.0
+src/imgpro input/group.jpg output/group_sat_0.0.jpg \
+                -saturation 0.0
+
+src/imgpro input/testpattern.jpg output/testpattern_sobelX.jpg \
+                                -sobelX
+
+src/imgpro input/testpattern.jpg output/testpattern_sobelY.jpg \
+                  -sobelY

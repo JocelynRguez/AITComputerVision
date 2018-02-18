@@ -144,7 +144,7 @@ Pixel(int x, int y)
 inline R2Pixel *R2Image::
 Pixels(void)
 {
-  // Return pointer to pixels for whole image 
+  // Return pointer to pixels for whole image
   // (pixels start at lower-left and go in row-major order)
   return pixels;
 }
@@ -162,7 +162,7 @@ Pixels(int x)
 
 
 inline R2Pixel *R2Image::
-operator[](int x) 
+operator[](int x)
 {
   // Return pixels pointer for row at x
   return Pixels(x);
