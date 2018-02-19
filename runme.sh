@@ -34,6 +34,9 @@ src/imgpro input/group.jpg output/group_sat_0.0.jpg \
 src/imgpro input/group.jpg output/group_sharpen.jpg \
                   -sharpen
 
+# src/imgpro input/tour.jpg output/tour_sharpen.jpg \
+#               -sharpen
+
 src/imgpro input/cat.jpg output/cat_sharpen.jpg \
               -sharpen
 
