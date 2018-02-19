@@ -348,9 +348,9 @@ ChangeSaturation(double factor)
   // Find a formula that changes the saturation without affecting the image brightness
 
   // FILL IN IMPLEMENTATION HERE (REMOVE PRINT STATEMENT WHEN DONE)
-  double for_red = .299;
-  double for_green = .587;
-  double for_blue = .114;
+  double for_red = .3;
+  double for_green = .6;
+  double for_blue = .1;
 
 
   double sq;
