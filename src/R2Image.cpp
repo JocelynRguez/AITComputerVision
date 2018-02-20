@@ -260,6 +260,7 @@ Brighten(double factor)
     for (int j = 0;  j < height; j++) {
       Pixel(i,j) *= factor;
       Pixel(i,j).Clamp();
+
     }
   }
 }
@@ -289,6 +290,8 @@ SobelX(void)
                     kernelx[2][2]*tempImg.Pixel(i+1, j+1);
 
       Pixel(i,j) = *somePixel;
+      Pixel(i,j).Clamp();
+
     }
   }
 
@@ -324,6 +327,7 @@ SobelY(void)
 
       //temp image
       Pixel(i,j) = *somePixel;
+      Pixel(i,j).Clamp();
     }
   }
 
