@@ -273,13 +273,13 @@ SobelX(void)
                           {-1, 0, -1}};
 
   R2Image tempImg(*this);
-  R2Pixel* somePixel = new R2Pixel();
+  R2Pixel* tempPixel = new R2Pixel();
 
 	// Apply the Sobel oprator to the image in X direction
   for (int i = 0; i < width-1; i++) {
     for (int j = 0;  j < height-1; j++) {
 
-        *somePixel = kernelx[0][0]*tempImg.Pixel(i-1, j-1) +
+        *tempPixel = kernelx[0][0]*tempImg.Pixel(i-1, j-1) +
                     kernelx[0][1]*tempImg.Pixel(i, j-1) +
                     kernelx[0][2]*tempImg.Pixel(i+1, j-1) +
                     kernelx[1][0]*tempImg.Pixel(i-1, j) +
@@ -289,7 +289,7 @@ SobelX(void)
                     kernelx[2][1]*tempImg.Pixel(i, j+1) +
                     kernelx[2][2]*tempImg.Pixel(i+1, j+1);
 
-      Pixel(i,j) = *somePixel;
+      Pixel(i,j) = *tempPixel;
       Pixel(i,j).Clamp();
 
     }
@@ -309,13 +309,13 @@ SobelY(void)
 
   R2Image tempImg(*this);
 
-  R2Pixel* somePixel = new R2Pixel();
+  R2Pixel* tempPixel = new R2Pixel();
 
   for (int i = 0; i < width-2; i++) {
     for (int j = 0;  j < height-2; j++) {
 
       //change tempImg
-      *somePixel = kernely[0][0]*tempImg.Pixel(i-1, j-1) +
+      *tempPixel = kernely[0][0]*tempImg.Pixel(i-1, j-1) +
                     kernely[0][1]*tempImg.Pixel(i, j-1) +
                     kernely[0][2]*tempImg.Pixel(i+1, j-1) +
                     kernely[1][0]*tempImg.Pixel(i-1, j) +
@@ -326,7 +326,7 @@ SobelY(void)
                     kernely[2][2]*tempImg.Pixel(i+1, j+1);
 
       //temp image
-      Pixel(i,j) = *somePixel;
+      Pixel(i,j) = *tempPixel;
       Pixel(i,j).Clamp();
     }
   }
@@ -415,13 +415,13 @@ Sharpen()
 
   R2Image tempImg(*this);
 
-  R2Pixel* somePixel = new R2Pixel();
+  R2Pixel* tempPixel = new R2Pixel();
 
   for (int i = 0; i < width-2; i++) {
     for (int j = 0;  j < height-2; j++) {
 
       //change tempImg
-      *somePixel = kernel[0][0]*tempImg.Pixel(i-2, j-2) +
+      *tempPixel = kernel[0][0]*tempImg.Pixel(i-2, j-2) +
                     kernel[0][1]*tempImg.Pixel(i-1, j-2) +
                     kernel[0][2]*tempImg.Pixel(i, j-2) +
                     kernel[0][3]*tempImg.Pixel(i+1, j-2) +
@@ -448,7 +448,7 @@ Sharpen()
                     kernel[4][4]*tempImg.Pixel(i+2, j+2);
 
       //temp image
-      Pixel(i,j) = *somePixel;
+      Pixel(i,j) = *tempPixel;
     }
   }
 
