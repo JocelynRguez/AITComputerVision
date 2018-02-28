@@ -8,7 +8,7 @@
 #include "R2Pixel.h"
 #include "R2Image.h"
 #include "svd.h"
-
+#include <algorithm>
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -270,7 +270,7 @@ SobelX(void)
 {
   float kernelx[3][3] =  {{-1, 0, 1},
                           {-2, 0, 2},
-                          {-1, 0, -1}};
+                          {-1, 0, 1}};
 
   R2Image tempImg(*this);
   R2Pixel* tempPixel = new R2Pixel();
@@ -279,23 +279,21 @@ SobelX(void)
   for (int i = 0; i < width-1; i++) {
     for (int j = 0;  j < height-1; j++) {
 
-        *tempPixel = kernelx[0][0]*tempImg.Pixel(i-1, j-1) +
-                    kernelx[0][1]*tempImg.Pixel(i, j-1) +
-                    kernelx[0][2]*tempImg.Pixel(i+1, j-1) +
-                    kernelx[1][0]*tempImg.Pixel(i-1, j) +
-                    kernelx[1][1]*tempImg.Pixel(i, j) +
-                    kernelx[1][2]*tempImg.Pixel(i+1, j) +
-                    kernelx[2][0]*tempImg.Pixel(i-1, j+1) +
-                    kernelx[2][1]*tempImg.Pixel(i, j+1) +
-                    kernelx[2][2]*tempImg.Pixel(i+1, j+1);
+        *tempPixel = (kernelx[0][0]*tempImg.Pixel(i-1, j-1)) +
+                    (kernelx[0][1]*tempImg.Pixel(i, j-1)) +
+                    (kernelx[0][2]*tempImg.Pixel(i+1, j-1)) +
+                    (kernelx[1][0]*tempImg.Pixel(i-1, j)) +
+                    (kernelx[1][1]*tempImg.Pixel(i, j)) +
+                    (kernelx[1][2]*tempImg.Pixel(i+1, j)) +
+                    (kernelx[2][0]*tempImg.Pixel(i-1, j+1)) +
+                    (kernelx[2][1]*tempImg.Pixel(i, j+1)) +
+                    (kernelx[2][2]*tempImg.Pixel(i+1, j+1));
 
       Pixel(i,j) = *tempPixel;
       Pixel(i,j).Clamp();
 
     }
   }
-
-  //*this = tempImg;
 
 }
 
@@ -385,10 +383,157 @@ void R2Image::
 Blur(double sigma)
 {
   // Gaussian blur of the image. Separable solution is preferred
+  R2Image tempImg(*this);
+
+  //kernel width
+  int kwidth = sigma*6 + 1;
+  int ksize = sigma*3;
+  fprintf(stderr, "kwidth: (%d), ksize: (%d)\n", kwidth, ksize);
+
+  //needs to ultimitalely add up to 1
+  double weight = 0.0;
+  double sum = 0.0;
+
+  //need to create kernel
+  double kernel[kwidth];
+  double pi = 3.14159265358979323846;
+  double square = pow(sigma, 2);
+
+  //compute the weights
+  for(int w = 0; w <= kwidth/2; w++){
+    weight = (1/(sigma*sqrt(2*pi)))*(exp(-(pow((-kwidth/2+w),2)/(2*square))));
+    kernel[w] = weight;
+    kernel[kwidth-w-1] = weight;
+    //kernel[kwidth-1-w] = weight;
+  }
+
+  //get sum of kernel weights
+  for(int s = 0; s < kwidth; s++){
+    sum += kernel[s];
+  }
+
+  //normalize kernel
+  double endsum = 0.0;
+  for(int l = 0; l < kwidth; l++){
+    kernel[l] = kernel[l]/sum;
+    endsum += kernel[l];
+    fprintf(stderr, "kernel(%d): (%f)\n", l, kernel[l]);
+  }
+  fprintf(stderr, "end(%f)\n", endsum);
+
+
+  //y direction
+  for(int i = ksize; i < width-ksize; i++){
+    for(int j = ksize; j < height-ksize; j++){
+      //another iteration, over kernel??
+      R2Pixel* tempPixel = new R2Pixel();
+      for(int ly = -ksize; ly <= ksize; ly++){
+        *tempPixel += Pixel(i,j+ly)*kernel[ly+ksize];
+      }
+      tempImg.Pixel(i,j) = *tempPixel;
+      //tempImg.Pixel(i,j).Clamp();
+    }
+  }
+
+  //x direction
+  for(int i = ksize; i < width-ksize; i++){
+    for(int j = ksize; j < height-ksize; j++){
+
+      R2Pixel* tempPixel = new R2Pixel();
+      for(int lx = -ksize; lx <= ksize; lx++){
+        *tempPixel += tempImg.Pixel(i+lx,j)*kernel[lx+ksize];
+      }
+      Pixel(i,j) = *tempPixel;
+      //Pixel(i,j).Clamp();
+    }
+  }
+
+
+
+
+  //Look at Separable filter psuedo code
 
   // FILL IN IMPLEMENTATION HERE (REMOVE PRINT STATEMENT WHEN DONE)
   fprintf(stderr, "Blur(%g) not implemented\n", sigma);
 }
+
+
+void R2Image::
+Median(int median)
+{
+    // The main idea of the median filter is to run through the signal entry by entry, replacing each entry with the median of neighboring entries.
+    //Blur(2.0);
+
+    int size = median/2;
+    R2Pixel neighbors[median];
+    double middle = 0.0;
+    double sorted[median];
+
+    double red = 0.0;
+    double green = 0.0;
+    double blue = 0.0;
+    double sum = 0.0;
+
+    R2Image tempImg(*this);
+    //y direction
+    for(int x = 0; x < width; x++){
+      for(int y = size; y< height-size; y++){
+        //R2Pixel* tempPixel = new R2Pixel();
+        for(int i = -size; i <= size; i++){
+          red = Pixel(x, y+i).Red();
+          green = Pixel(x, y+i).Green();
+          blue = Pixel(x, y+i).Blue();
+          sum = red+green+blue;
+
+          neighbors[i+size] = Pixel(x, y+i);
+          //fprintf(stderr, "Val: (%g)\n", neighbors[i]);
+        }
+
+        //sort through array
+
+        //std::sort(neighbors, neighbors + median);
+        tempImg.Pixel(x,y) = neighbors[size-1];
+        //fprintf(stderr, "Val: (%g)\n", neighbors[median/2]);
+      }
+    }
+
+    //x direction
+    for(int x = median; x < width-median; x++){
+      for(int y = 0; y< height; y++){
+
+
+        for(int i = -size; i <= size; i++){
+          red = tempImg.Pixel(x+i, y).Red();
+          green = tempImg.Pixel(x+i, y).Green();
+          blue = tempImg.Pixel(x+i, y).Blue();
+          neighbors[i+size] = tempImg.Pixel(x+i, y);
+          //fprintf(stderr, "Val: (%g)\n", neighbors[i]);
+        }
+
+        //std::sort(neighbors, neighbors + median);
+        Pixel(x,y) = neighbors[size];
+        //fprintf(stderr, "Val: (%g)\n", *neighbors);
+
+      }
+    }
+
+
+
+  // FILL IN IMPLEMENTATION HERE (REMOVE PRINT STATEMENT WHEN DONE)
+  fprintf(stderr, "Median not implemented\n");
+}
+
+
+void R2Image::
+Bilateral()
+{
+    // Harris corner detector. Make use of the previously developed filters, such as the Gaussian blur filter
+	// Output should be 50% grey at flat regions, white at corners and black/dark near edges
+
+  // FILL IN IMPLEMENTATION HERE (REMOVE PRINT STATEMENT WHEN DONE)
+  fprintf(stderr, "Bilateral not implemented\n");
+}
+
 
 
 void R2Image::

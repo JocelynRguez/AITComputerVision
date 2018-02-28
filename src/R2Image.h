@@ -74,6 +74,10 @@ class R2Image {
   void Harris(double sigma);
   void Sharpen(void);
 
+  //Extra Credit HW
+  void Median(int median);
+  void Bilateral();
+
   // further operations
   void blendOtherImageTranslated(R2Image * otherImage);
   void blendOtherImageHomography(R2Image * otherImage);
