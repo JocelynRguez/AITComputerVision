@@ -19,8 +19,19 @@ popd
 
 # generate the result pictures
 
-src/imgpro input/grainy.jpg output/grainy_median.jpg \
-                  -median 5
+
+# src/imgpro input/test_A_alexa.jpg output/test_A_alexa_harris.jpg \
+#                   -harris 2.0
+#
+# src/imgpro input/test_B_sony.jpg output/test_B_sony_harris.jpg \
+#                   -harris 2.0
+
+
+src/imgpro input/testpattern.jpg output/testpattern_harris.jpg \
+                  -harris 2.0
+
+# src/imgpro input/grainy.jpg output/grainy_median.jpg \
+#                   -median 5
 
 # src/imgpro input/testpattern.jpg output/testpattern_blur_2.0.jpg \
 #                   -blur 2.0
@@ -39,11 +50,17 @@ src/imgpro input/grainy.jpg output/grainy_median.jpg \
 # src/imgpro input/group.jpg output/group_sat_0.0.jpg \
 #                 -saturation 0.0
 #
-# src/imgpro input/testpattern.jpg output/testpattern_sobelX.jpg \
-#                                 -sobelX
-#
-# src/imgpro input/testpattern.jpg output/testpattern_sobelY.jpg \
-#                   -sobelY
+src/imgpro input/testing.jpg output/testing_sobelX.jpg \
+                                -sobelX
+
+src/imgpro input/testing.jpg output/testing_sobelY.jpg \
+                  -sobelY
+
+src/imgpro input/testpattern.jpg output/testpattern_sobelX.jpg \
+                        -sobelX
+
+src/imgpro input/testpattern.jpg output/testpattern_sobelY.jpg \
+          -sobelY
 #
 # src/imgpro input/group.jpg output/group_sharpen.jpg \
 #                   -sharpen

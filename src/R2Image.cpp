@@ -268,32 +268,42 @@ Brighten(double factor)
 void R2Image::
 SobelX(void)
 {
-  float kernelx[3][3] =  {{-1, 0, 1},
-                          {-2, 0, 2},
-                          {-1, 0, 1}};
+  float kernelx[3][3] =  {{1, 0, -1},
+                          {2, 0, -2},
+                          {1, 0, -1}};
 
   R2Image tempImg(*this);
   R2Pixel* tempPixel = new R2Pixel();
 
 	// Apply the Sobel oprator to the image in X direction
-  for (int i = 0; i < width-1; i++) {
-    for (int j = 0;  j < height-1; j++) {
+  for (int i = 1; i < width-1; i++) {
+    for (int j = 1;  j < height-1; j++) {
 
-        *tempPixel = (kernelx[0][0]*tempImg.Pixel(i-1, j-1)) +
-                    (kernelx[0][1]*tempImg.Pixel(i, j-1)) +
-                    (kernelx[0][2]*tempImg.Pixel(i+1, j-1)) +
-                    (kernelx[1][0]*tempImg.Pixel(i-1, j)) +
-                    (kernelx[1][1]*tempImg.Pixel(i, j)) +
-                    (kernelx[1][2]*tempImg.Pixel(i+1, j)) +
-                    (kernelx[2][0]*tempImg.Pixel(i-1, j+1)) +
-                    (kernelx[2][1]*tempImg.Pixel(i, j+1)) +
-                    (kernelx[2][2]*tempImg.Pixel(i+1, j+1));
+        *tempPixel = (kernelx[0][0]*Pixel(i-1, j-1)) +
+                    (kernelx[0][1]*Pixel(i, j-1)) +
+                    (kernelx[0][2]*Pixel(i+1, j-1)) +
+                    (kernelx[1][0]*Pixel(i-1, j)) +
+                    (kernelx[1][1]*Pixel(i, j)) +
+                    (kernelx[1][2]*Pixel(i+1, j)) +
+                    (kernelx[2][0]*Pixel(i-1, j+1)) +
+                    (kernelx[2][1]*Pixel(i, j+1)) +
+                    (kernelx[2][2]*Pixel(i+1, j+1));
 
-      Pixel(i,j) = *tempPixel;
-      Pixel(i,j).Clamp();
+      tempImg.Pixel(i,j) = *tempPixel;
+     //Pixel(i,j).Clamp();
 
     }
   }
+
+  for(int x = 0; x < width; x++){
+    for(int y = 0; y < height; y++){
+      Pixel(x,y) = tempImg.Pixel(x,y);
+      //Pixel(x,y).Clamp();
+    }
+
+  }
+
+
 
 }
 
@@ -309,24 +319,31 @@ SobelY(void)
 
   R2Pixel* tempPixel = new R2Pixel();
 
-  for (int i = 0; i < width-2; i++) {
-    for (int j = 0;  j < height-2; j++) {
+  for (int i = 1; i < width-1; i++) {
+    for (int j = 1;  j < height-1; j++) {
 
       //change tempImg
-      *tempPixel = kernely[0][0]*tempImg.Pixel(i-1, j-1) +
-                    kernely[0][1]*tempImg.Pixel(i, j-1) +
-                    kernely[0][2]*tempImg.Pixel(i+1, j-1) +
-                    kernely[1][0]*tempImg.Pixel(i-1, j) +
-                    kernely[1][1]*tempImg.Pixel(i, j) +
-                    kernely[1][2]*tempImg.Pixel(i+1, j) +
-                    kernely[2][0]*tempImg.Pixel(i-1, j+1) +
-                    kernely[2][1]*tempImg.Pixel(i, j+1) +
-                    kernely[2][2]*tempImg.Pixel(i+1, j+1);
-
+      *tempPixel = (kernely[0][0]*Pixel(i-1, j-1)) +
+                  (kernely[0][1]*Pixel(i, j-1)) +
+                  (kernely[0][2]*Pixel(i+1, j-1)) +
+                  (kernely[1][0]*Pixel(i-1, j)) +
+                  (kernely[1][1]*Pixel(i, j)) +
+                  (kernely[1][2]*Pixel(i+1, j)) +
+                  (kernely[2][0]*Pixel(i-1, j+1)) +
+                  (kernely[2][1]*Pixel(i, j+1)) +
+                  (kernely[2][2]*Pixel(i+1, j+1));
       //temp image
-      Pixel(i,j) = *tempPixel;
-      Pixel(i,j).Clamp();
+      tempImg.Pixel(i,j) = *tempPixel;
+      //Pixel(i,j).Clamp();
     }
+  }
+
+  for(int x = 0; x < width; x++){
+    for(int y = 0; y < height; y++){
+      Pixel(x,y) = tempImg.Pixel(x,y);
+      //Pixel(x,y).Clamp();
+    }
+
   }
 
 
@@ -388,7 +405,7 @@ Blur(double sigma)
   //kernel width
   int kwidth = sigma*6 + 1;
   int ksize = sigma*3;
-  fprintf(stderr, "kwidth: (%d), ksize: (%d)\n", kwidth, ksize);
+  //fprintf(stderr, "kwidth: (%d), ksize: (%d)\n", kwidth, ksize);
 
   //needs to ultimitalely add up to 1
   double weight = 0.0;
@@ -417,9 +434,9 @@ Blur(double sigma)
   for(int l = 0; l < kwidth; l++){
     kernel[l] = kernel[l]/sum;
     endsum += kernel[l];
-    fprintf(stderr, "kernel(%d): (%f)\n", l, kernel[l]);
+    //fprintf(stderr, "kernel(%d): (%f)\n", l, kernel[l]);
   }
-  fprintf(stderr, "end(%f)\n", endsum);
+  //fprintf(stderr, "end(%f)\n", endsum);
 
 
   //y direction
@@ -454,7 +471,6 @@ Blur(double sigma)
   //Look at Separable filter psuedo code
 
   // FILL IN IMPLEMENTATION HERE (REMOVE PRINT STATEMENT WHEN DONE)
-  fprintf(stderr, "Blur(%g) not implemented\n", sigma);
 }
 
 
@@ -541,6 +557,52 @@ Harris(double sigma)
 {
     // Harris corner detector. Make use of the previously developed filters, such as the Gaussian blur filter
 	// Output should be 50% grey at flat regions, white at corners and black/dark near edges
+  R2Image Ixx(*this);
+  Ixx.SobelX();
+  R2Image Iyy(*this);
+  Iyy.SobelY();
+  R2Image Ixy(*this);
+
+  //Ix * Iy
+  for(int i = 0; i < width; i++){
+    for(int j = 0; j < height; j++){
+        Ixy.Pixel(i,j) = Ixx.Pixel(i,j)*Iyy.Pixel(i,j);
+    }
+  }
+
+  //square to get Ixx
+  for(int i = 0; i < width; i++){
+    for(int j = 0; j < height; j++){
+        Ixx.Pixel(i,j) *= Ixx.Pixel(i,j);
+    }
+  }
+
+  //square to get Iyy
+  for(int i = 0; i < width; i++){
+    for(int j = 0; j < height; j++){
+        Iyy.Pixel(i,j) *= Iyy.Pixel(i,j);
+    }
+  }
+
+  Ixx.Blur(sigma);
+  Iyy.Blur(sigma);
+  Ixy.Blur(sigma);
+
+  for(int x = 0; x < width; x++){
+    for(int y = 0; y < height; y++){
+      Pixel(x,y) = (Ixx.Pixel(x,y)*Iyy.Pixel(x,y))
+      -(Ixy.Pixel(x,y)*Ixy.Pixel(x,y))
+      -0.04*((Ixx.Pixel(x,y)+Iyy.Pixel(x,y))
+      *(Ixx.Pixel(x,y)+Iyy.Pixel(x,y)));
+      Pixel(x,y).SetRed(Pixel(x,y).Red() + 0.5);
+      Pixel(x,y).SetBlue(Pixel(x,y).Blue() + 0.5);
+      Pixel(x,y).SetGreen(Pixel(x,y).Green() + 0.5);
+      Pixel(x,y).Clamp();
+    }
+  }
+
+
+
 
   // FILL IN IMPLEMENTATION HERE (REMOVE PRINT STATEMENT WHEN DONE)
   fprintf(stderr, "Harris(%g) not implemented\n", sigma);
