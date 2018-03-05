@@ -1,10 +1,40 @@
 // Include file for image class
 #ifndef R2_IMAGE_INCLUDED
 #define R2_IMAGE_INCLUDED
+#include <vector>
+using namespace std;
 
 
+// this structure is defined at the same level as function definitions
+struct Feature
+{
+    int centerX;
+    int centerY;
+    R2Pixel HarrisValue;
 
-// Constant definitions
+    Feature( )
+    {
+        centerX = -1;
+        centerY = -1;
+    }
+
+
+    Feature(int x, int y, R2Pixel val)
+    {
+        centerX = x;
+        centerY = y;
+        HarrisValue = val;
+    }
+
+    bool operator<(const Feature& feature) const {
+        double valueIntensity = HarrisValue[0] + HarrisValue[1] + HarrisValue[2];
+        double featureIntensity = feature.HarrisValue[0] + feature.HarrisValue[1] + feature.HarrisValue[2];
+
+        return valueIntensity < featureIntensity;
+    }
+
+};
+
 
 typedef enum {
   R2_IMAGE_RED_CHANNEL,
@@ -30,11 +60,12 @@ typedef enum {
 } R2ImageCompositeOperation;
 
 
-
 // Class definition
 
 class R2Image {
  public:
+
+
   // Constructors/destructor
   R2Image(void);
   R2Image(const char *filename);
@@ -65,6 +96,9 @@ class R2Image {
 
   // show how SVD works
   void svdTest();
+
+  //helper functions
+  void filterHarris(vector<Feature> values);
 
   // Linear filtering operations
   void SobelX();

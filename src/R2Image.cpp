@@ -9,11 +9,20 @@
 #include "R2Image.h"
 #include "svd.h"
 #include <algorithm>
+#include <vector>
+#include <iostream>
+using namespace std;
 
 
 ////////////////////////////////////////////////////////////////////////
 // Constructors/Destructors
 ////////////////////////////////////////////////////////////////////////
+
+//
+// struct Point {
+//   int x;
+//   int y;
+// };
 
 
 R2Image::
@@ -268,6 +277,8 @@ Brighten(double factor)
 void R2Image::
 SobelX(void)
 {
+  (*this).ChangeSaturation(0.0);
+
   float kernelx[3][3] =  {{1, 0, -1},
                           {2, 0, -2},
                           {1, 0, -1}};
@@ -310,6 +321,8 @@ SobelX(void)
 void R2Image::
 SobelY(void)
 {
+
+  (*this).ChangeSaturation(0.0);
 	// Apply the Sobel oprator to the image in Y direction
   float kernely[3][3] = {{-1, -2, -1},
                           {0, 0, 0},
@@ -482,8 +495,8 @@ Median(int median)
 
     int size = median/2;
     R2Pixel neighbors[median];
-    double middle = 0.0;
-    double sorted[median];
+    //double middle = 0.0;
+    //double sorted[median];
 
     double red = 0.0;
     double green = 0.0;
@@ -551,6 +564,45 @@ Bilateral()
 }
 
 
+void R2Image::
+filterHarris(vector<Feature> values){
+    //int prev = bpixels[0];
+    //double kernel[][] = {}
+
+    int currX;
+    int currY;
+    int offset = 5;
+
+    R2Image tempImg(*this);
+
+  for(int index = 0; index < values.size(); index++){
+    currX = values[index].centerX;
+    currY = values[index].centerY;
+
+      for(int s = -offset; s <= offset; s++){
+
+        Pixel(currX+s,currY+offset).SetRed(1);
+        Pixel(currX+s,currY+offset).SetGreen(0);
+        Pixel(currX+s,currY+offset).SetBlue(0);
+
+        Pixel(currX+offset,currY+s).SetRed(1);
+        Pixel(currX+offset,currY+s).SetGreen(0);
+        Pixel(currX+offset,currY+s).SetBlue(0);
+        //
+        Pixel(currX-s,currY-offset).SetRed(1);
+        Pixel(currX-s,currY-offset).SetGreen(0);
+        Pixel(currX-s,currY-offset).SetBlue(0);
+        //
+        Pixel(currX-offset,currY-s).SetRed(1);
+        Pixel(currX-offset,currY-s).SetGreen(0);
+        Pixel(currX-offset,currY-s).SetBlue(0);
+      }
+  }
+
+
+      }
+
+
 
 void R2Image::
 Harris(double sigma)
@@ -562,6 +614,8 @@ Harris(double sigma)
   R2Image Iyy(*this);
   Iyy.SobelY();
   R2Image Ixy(*this);
+
+  //R2Pixel corners[width*height];
 
   //Ix * Iy
   for(int i = 0; i < width; i++){
@@ -588,25 +642,90 @@ Harris(double sigma)
   Iyy.Blur(sigma);
   Ixy.Blur(sigma);
 
+  float red;
+  float green;
+  float blue;
+  vector<Feature> values;
+
+  R2Image tempImg(*this);
+  //R2Pixel* tempPixel = new R2Pixel();
+
   for(int x = 0; x < width; x++){
     for(int y = 0; y < height; y++){
-      Pixel(x,y) = (Ixx.Pixel(x,y)*Iyy.Pixel(x,y))
+      tempImg.Pixel(x,y) = (Ixx.Pixel(x,y)*Iyy.Pixel(x,y))
       -(Ixy.Pixel(x,y)*Ixy.Pixel(x,y))
       -0.04*((Ixx.Pixel(x,y)+Iyy.Pixel(x,y))
       *(Ixx.Pixel(x,y)+Iyy.Pixel(x,y)));
-      Pixel(x,y).SetRed(Pixel(x,y).Red() + 0.5);
-      Pixel(x,y).SetBlue(Pixel(x,y).Blue() + 0.5);
-      Pixel(x,y).SetGreen(Pixel(x,y).Green() + 0.5);
-      Pixel(x,y).Clamp();
+
+      red = tempImg.Pixel(x,y).Red();
+      green = tempImg.Pixel(x,y).Green();
+      blue = tempImg.Pixel(x,y).Blue();
+
+
+      tempImg.Pixel(x,y).SetRed(red + 0.5);
+      tempImg.Pixel(x,y).SetBlue(blue + 0.5);
+      tempImg.Pixel(x,y).SetGreen(green + 0.5);
+
+      tempImg.Pixel(x,y).Clamp();
+       //fprintf(stderr, "R: (%f) G:(%f) B:(%f) sum:(%f)\n", Pixel(x,y).Red(), Pixel(x,y).Blue(), Pixel(x,y).Green(), rgbsum);
+
+          //fprintf(stderr, "Sum (%f), count(%d)\n", rgbsum, count);
+          //fprintf(stderr, "R: (%f) G:(%f) B:(%f) Luminance (%f) count(%d) sum(%f)\n", Pixel(x,y).Red(), Pixel(x,y).Blue(), Pixel(x,y).Green(), Pixel(x,y).Luminance(), count, rgbsum);
+
+          Feature temp(x, y, tempImg.Pixel(x,y));
+          values.push_back(temp);
+
     }
   }
 
+    sort(values.rbegin(), values.rend());
+
+    int count = 0;
+    int index = 0;
+    int window = 10;
+    bool empty;
+    int currX;
+    int currY;
+  //  R2Pixel *redPixel(1, 0, 0, 0);
+
+    vector<Feature> brightness;
+
+    while(count < 150){
+      empty = true;
+      currX = values[index].centerX;
+      currY = values[index].centerY;
+
+      for(int i = -window; i <= window; i++){
+        for(int j = -window; j <= window; j++){
+          //not going outside pic
+            if(currX + i > 0 && currX + i < width &&
+              currY + j > 0 && currY + j < height ){
+               if(tempImg.Pixel(currX + i, currY + j).Red() == 1.0){
+                 empty = false;
+               }
+              }
+        }
+      }
+
+      if(empty){
+        brightness.push_back(values[index]);
+        tempImg.Pixel(currX, currY).SetRed(1.0);
+        count++;
+      }
+
+      index++;
+    }
 
 
+
+    fprintf(stderr, "height (%d) width (%d) pixels (%d)\n", height, width, height*width);
+    filterHarris(brightness);
 
   // FILL IN IMPLEMENTATION HERE (REMOVE PRINT STATEMENT WHEN DONE)
-  fprintf(stderr, "Harris(%g) not implemented\n", sigma);
+  fprintf(stderr, "Harris(%g) implemented\n", sigma);
 }
+
+
 
 
 void R2Image::
