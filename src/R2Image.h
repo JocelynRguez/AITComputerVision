@@ -36,6 +36,7 @@ struct Feature
 };
 
 
+
 typedef enum {
   R2_IMAGE_RED_CHANNEL,
   R2_IMAGE_GREEN_CHANNEL,
@@ -65,7 +66,7 @@ typedef enum {
 class R2Image {
  public:
 
-
+  //std::vector<Feature> features;
   // Constructors/destructor
   R2Image(void);
   R2Image(const char *filename);
@@ -98,7 +99,9 @@ class R2Image {
   void svdTest();
 
   //helper functions
-  void filterHarris(vector<Feature> values);
+  vector<Feature> filterHarris(vector<Feature> values);
+  void line(int x0, int x1, int y0, int y1, float r, float g, float b);
+
 
   // Linear filtering operations
   void SobelX();

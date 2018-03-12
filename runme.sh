@@ -22,11 +22,32 @@ popd
 # src/imgpro input/testpattern.jpg output/testpattern_harriscorners.jpg \
 #                   -harris 2.0
 #
-src/imgpro input/test_A_alexa.jpg output/test_A_alexa_harris.jpg \
-                        -harris 2.0
+# src/imgpro input/test_A_alexa.jpg output/test_A_alexa_harris.jpg \
+#                         -harris 2.0
+#
+# src/imgpro input/test_B_sony.jpg output/test_B_sony_harris.jpg \
+#           -harris 2.0
+#
+# src/imgpro input/testpattern.jpg output/testpattern_harris.jpg \
+#           -harris 2.0
 
-src/imgpro input/test_B_sony.jpg output/test_B_sony_harris.jpg \
-          -harris 2.0
+# src/imgpro input/test_E_sitting01.jpg output/test_E_sitting_match.jpg \
+#           -matchTranslation input/test_E_sitting02.jpg
+
+# src/imgpro input/test_D_face01.jpg output/test_D_match.jpg \
+#           -matchTranslation input/test_D_face02.jpg
+
+# src/imgpro input/test_C_bridge01.jpg output/test_C_harris.jpg \
+#           -harris 2.0
+#
+# src/imgpro input/test_C_bridge02.jpg output/test_C_harris2.jpg \
+#           -harris 2.0
+#
+# src/imgpro input/test_C_bridge01.jpg output/test_C_bridge_match.jpg \
+#           -matchTranslation input/test_C_bridge02.jpg
+
+src/imgpro input/scc01.jpg output/scc_match.jpg \
+          -matchTranslation input/scc02.jpg
 
 
 # src/imgpro input/test_B_sony.jpg output/test_B_sony_harris2.jpg \

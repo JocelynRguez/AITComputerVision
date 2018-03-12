@@ -18,12 +18,7 @@ using namespace std;
 // Constructors/Destructors
 ////////////////////////////////////////////////////////////////////////
 
-//
-// struct Point {
-//   int x;
-//   int y;
-// };
-
+vector<Feature> harrisFeatures;
 
 R2Image::
 R2Image(void)
@@ -564,7 +559,7 @@ Bilateral()
 }
 
 
-void R2Image::
+vector<Feature> R2Image::
 filterHarris(vector<Feature> values){
     //int prev = bpixels[0];
     //double kernel[][] = {}
@@ -581,28 +576,29 @@ filterHarris(vector<Feature> values){
 
       for(int s = -offset; s <= offset; s++){
 
-        Pixel(currX+s,currY+offset).SetRed(1);
-        Pixel(currX+s,currY+offset).SetGreen(0);
+        Pixel(currX+s,currY+offset).SetRed(0);
+        Pixel(currX+s,currY+offset).SetGreen(1);
         Pixel(currX+s,currY+offset).SetBlue(0);
 
-        Pixel(currX+offset,currY+s).SetRed(1);
-        Pixel(currX+offset,currY+s).SetGreen(0);
+        Pixel(currX+offset,currY+s).SetRed(0);
+        Pixel(currX+offset,currY+s).SetGreen(1);
         Pixel(currX+offset,currY+s).SetBlue(0);
         //
-        Pixel(currX-s,currY-offset).SetRed(1);
-        Pixel(currX-s,currY-offset).SetGreen(0);
+        Pixel(currX-s,currY-offset).SetRed(0);
+        Pixel(currX-s,currY-offset).SetGreen(1);
         Pixel(currX-s,currY-offset).SetBlue(0);
         //
-        Pixel(currX-offset,currY-s).SetRed(1);
-        Pixel(currX-offset,currY-s).SetGreen(0);
+        Pixel(currX-offset,currY-s).SetRed(0);
+        Pixel(currX-offset,currY-s).SetGreen(1);
         Pixel(currX-offset,currY-s).SetBlue(0);
       }
   }
 
+        return values;
 
       }
 
-
+vector<Feature> featuresVec;
 
 void R2Image::
 Harris(double sigma)
@@ -688,8 +684,6 @@ Harris(double sigma)
     int currY;
   //  R2Pixel *redPixel(1, 0, 0, 0);
 
-    vector<Feature> brightness;
-
     while(count < 150){
       empty = true;
       currX = values[index].centerX;
@@ -708,7 +702,7 @@ Harris(double sigma)
       }
 
       if(empty){
-        brightness.push_back(values[index]);
+        featuresVec.push_back(values[index]);
         tempImg.Pixel(currX, currY).SetRed(1.0);
         count++;
       }
@@ -717,12 +711,12 @@ Harris(double sigma)
     }
 
 
-
+    filterHarris(featuresVec);
     fprintf(stderr, "height (%d) width (%d) pixels (%d)\n", height, width, height*width);
-    filterHarris(brightness);
+    //(*this).features = filterHarris(brightness);
 
-  // FILL IN IMPLEMENTATION HERE (REMOVE PRINT STATEMENT WHEN DONE)
-  fprintf(stderr, "Harris(%g) implemented\n", sigma);
+    // FILL IN IMPLEMENTATION HERE (REMOVE PRINT STATEMENT WHEN DONE)
+    fprintf(stderr, "Harris(%g) implemented\n", sigma);
 }
 
 
@@ -780,14 +774,156 @@ Sharpen()
 
 }
 
+void R2Image::
+line(int x0, int x1, int y0, int y1, float r, float g, float b)
+{
+	if(x0>x1)
+	{
+		int x=y1;
+		y1=y0;
+		y0=x;
+
+		x=x1;
+		x1=x0;
+		x0=x;
+	}
+     int deltax = x1 - x0;
+     int deltay = y1 - y0;
+     float error = 0;
+     float deltaerr = 0.0;
+	 if(deltax!=0) deltaerr =fabs(float(float(deltay) / deltax));    // Assume deltax != 0 (line is not vertical),
+           // note that this division needs to be done in a way that preserves the fractional part
+     int y = y0;
+     for(int x=x0;x<=x1;x++)
+	 {
+		 Pixel(x,y).Reset(r,g,b,1.0);
+         error = error + deltaerr;
+         if(error>=0.5)
+		 {
+			 if(deltay>0) y = y + 1;
+			 else y = y - 1;
+
+             error = error - 1.0;
+		 }
+	 }
+	 if(x0>3 && x0<width-3 && y0>3 && y0<height-3)
+	 {
+		 for(int x=x0-3;x<=x0+3;x++)
+		 {
+			 for(int y=y0-3;y<=y0+3;y++)
+			 {
+				 Pixel(x,y).Reset(r,g,b,1.0);
+			 }
+		 }
+	 }
+}
+
 
 void R2Image::
 blendOtherImageTranslated(R2Image * otherImage)
 {
 	// find at least 100 features on this image, and another 100 on the "otherImage". Based on these,
 	// compute the matching translation (pixel precision is OK), and blend the translated "otherImage"
+
+  //search through values in a 6x6 window
+  int window = 10;
+  // double searchWidth = .2*width;
+  // double searchHeight = .2*height;
+
+  R2Image firstImage(*this);
+  firstImage.Harris(2.0);
+
+  R2Image secondImage(*otherImage);
+  R2Image thirdImage(*this);
+  // thirdImage.ChangeSaturation(0.0);
+  // secondImage.ChangeSaturation(0.0);
+  //Harris(2.0);
+  int currX;
+  int currY;
+  // R2Pixel greenPix(0, 1, 0, 1);
+  // R2Pixel redPix(1, 0, 0, 1);
+  //
+  // vector<double> ssdResults;
+
+  double diff;
+  double ssd;
+
+  double finalSSD;
+  int finalX;
+  int finalY;
+
+
+  double sum1;
+  double sum2;
+
+  //go though 150 features & compute avg of window
+   for(int index = 0; index < featuresVec.size(); index++ ){
+
+    currX = featuresVec[index].centerX;
+    currY = featuresVec[index].centerY;
+
+    // fprintf(stderr, "X: %d, Y: %d \n", currX, currY);
+
+    finalX = currX;
+    finalY = currY;
+    finalSSD = 5000000000;
+
+    //go through %20 of image size (search area)
+    for(int x = (int) currX-(width*0.2); x <= (int) currX+(width*0.2); x++) {
+        for(int y = (int) currY-(height*0.2); y <= (int) currY+(height*0.2); y++){
+
+          //fprintf(stderr, "X: %d, Y: %d \n", dX, dY);
+
+          ssd = 0.0;
+         if(x >= 0 && x < width && y >=0 && y < height){
+           //fprintf(stderr, "%s\n", inBounds ? "true" : "false" );
+
+           //go through window to compare ssd from orig and other image
+           for(int i = -window; i <= window; i++){
+             for(int j = -window; j <= window ; j++){
+
+                sum1 = thirdImage.Pixel(currX+i, currY+j).Red()+thirdImage.Pixel(currX+i, currY+j).Green() + thirdImage.Pixel(currX+i, currY+j).Blue();
+
+                 sum2 = secondImage.Pixel(x+i, y+j).Red() +secondImage.Pixel(x+i, y+j).Green() + secondImage.Pixel(x+i, y+j).Blue();
+
+                 //compute ssd
+                 diff = sum1 - sum2;
+                 ssd += (diff*diff);
+                 //fprintf(stderr, "SSD: %f\n", ssd);
+
+             }
+           }
+
+           //fprintf(stderr, "CURR SSD: %f , FINAL SSD: %f \n", ssd, finalSSD);
+           //update coordinates if distance is smaller
+           if(ssd <= finalSSD){
+             finalSSD = ssd;
+             finalX = x;
+             finalY = y;
+
+           }
+         }
+
+        }
+    }
+
+
+
+    //fprintf(stderr, "prevX: %d prevY: %d finalX: %d finalY: %d \n", currX, currY, finalX, finalY);
+    
+    //create line
+    line(currX, finalX, currY, finalY, 0, 1, 0);
+  }
+
+  //go through other imageB
+  // for(int i = 0; i < width; i++){
+  //
+  //
+  // }
+
+
 	// into this image with a 50% opacity.
-	fprintf(stderr, "fit other image using translation and blend imageB over imageA\n");
+	//fprintf(stderr, "fit other image using translation and blend imageB over imageA\n");
 	return;
 }
 
