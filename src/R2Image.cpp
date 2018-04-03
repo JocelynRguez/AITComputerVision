@@ -856,6 +856,8 @@ blendOtherImageTranslated(R2Image * otherImage)
   double sum1;
   double sum2;
 
+  vector<Feature> matchingFeatures;
+
   //go though 150 features & compute avg of window
    for(int index = 0; index < featuresVec.size(); index++ ){
 
@@ -910,16 +912,112 @@ blendOtherImageTranslated(R2Image * otherImage)
 
 
     //fprintf(stderr, "prevX: %d prevY: %d finalX: %d finalY: %d \n", currX, currY, finalX, finalY);
-    
+    Feature tempFeature(finalX, finalY, secondImage.Pixel(finalX,finalY));
+    matchingFeatures.push_back(tempFeature);
     //create line
     line(currX, finalX, currY, finalY, 0, 1, 0);
   }
 
-  //go through other imageB
-  // for(int i = 0; i < width; i++){
-  //
-  //
-  // }
+/*
+ Reject outliers
+*/
+
+
+
+  int count = 0;
+  //number of iterations needed
+  int iterations = 150;
+  int maxInliers = 0;
+  int currentInliers = 0;
+
+  double threshhold = 3; //apply the transform of projected data then get distance
+
+
+  //vector<int> goodFeatures;
+  vector<int> badFeatures;
+  vector<int> finalBadFeatures;
+
+  Feature temp1;
+  Feature temp2;
+
+
+  int index1;
+
+
+  while(count < iterations){
+
+    index1 = rand()%150;
+    temp1 = featuresVec[index1];
+    temp2 = matchingFeatures[index1];
+
+    int xOrig = temp1.centerX;
+    int yOrig = temp1.centerY;
+
+    int xMatch = temp2.centerX;
+    int yMatch = temp2.centerY;
+
+    int xDiff = pow(xOrig - xMatch, 2);
+    int yDiff = pow(yOrig - yMatch, 2);
+
+    int origDistance = sqrt(xDiff + yDiff);
+
+    //fprintf(stderr, "origDistance: %d\n", origDistance);
+
+
+    for(int i = 0; i < 150; i++){
+
+      int x1 = featuresVec[i].centerX;
+      int y1 = featuresVec[i].centerY;
+
+      int x2 = matchingFeatures[i].centerX;
+      int y2 = matchingFeatures[i].centerY;
+
+      int xDiff2 = pow(x1 - x2, 2);
+      int yDiff2 = pow(y1 - y2, 2);
+
+      int otherDistance = sqrt(xDiff2 + yDiff2);
+
+      //fprintf(stderr, "difference of distances: %d\n", origDistance - otherDistance);
+
+      int difference = abs(origDistance - otherDistance);
+
+      if( difference < threshhold){
+        currentInliers++;
+        //goodFeatures.push_back(i);
+        finalBadFeatures = badFeatures;
+      }else{
+        badFeatures.push_back(i);
+      }
+
+    }
+
+    if(maxInliers < currentInliers){
+      maxInliers = currentInliers;
+      fprintf(stderr, "Max Inliers: %d \n", maxInliers);
+
+    }else{
+      //goodFeatures.clear();
+      badFeatures.clear();
+    }
+
+    currentInliers = 0;
+    count++;
+  }
+
+
+  for(int k = 0; k < finalBadFeatures.size(); k++){
+    // line(currX, finalX, currY, finalY, 0, 1, 0);
+    int startX = featuresVec[finalBadFeatures[k]].centerX;
+    int startY = featuresVec[finalBadFeatures[k]].centerY;
+    int stopX = matchingFeatures[finalBadFeatures[k]].centerX;
+    int stopY = matchingFeatures[finalBadFeatures[k]].centerY;
+
+    line(startX, stopX, startY, stopY, 1, 0, 0);
+  }
+
+
+
+  //double p = pow((1-pow((1-e), 4)), 150);
 
 
 	// into this image with a 50% opacity.
