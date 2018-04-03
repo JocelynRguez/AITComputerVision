@@ -956,10 +956,14 @@ blendOtherImageTranslated(R2Image * otherImage)
     int xMatch = temp2.centerX;
     int yMatch = temp2.centerY;
 
-    int xDiff = pow(xOrig - xMatch, 2);
-    int yDiff = pow(yOrig - yMatch, 2);
+    //vector
+    int xVec = xOrig - xMatch;
+    int yVec = yOrig - yMatch;
 
-    int origDistance = sqrt(xDiff + yDiff);
+    // int xDiff = pow(xOrig - xMatch, 2);
+    // int yDiff = pow(yOrig - yMatch, 2);
+    //
+    // int origDistance = sqrt(xDiff + yDiff);
 
     //fprintf(stderr, "origDistance: %d\n", origDistance);
 
@@ -972,14 +976,25 @@ blendOtherImageTranslated(R2Image * otherImage)
       int x2 = matchingFeatures[i].centerX;
       int y2 = matchingFeatures[i].centerY;
 
-      int xDiff2 = pow(x1 - x2, 2);
-      int yDiff2 = pow(y1 - y2, 2);
+      //vector
+      int xVec2 = x1 - x2;
+      int yVec2 = y1 - y2;
 
-      int otherDistance = sqrt(xDiff2 + yDiff2);
+      // int xDiff2 = pow(x1 - x2, 2);
+      // int yDiff2 = pow(y1 - y2, 2);
+
+      //int xVec =
+
+      //int otherDistance = sqrt(xDiff2 + yDiff2);
 
       //fprintf(stderr, "difference of distances: %d\n", origDistance - otherDistance);
 
-      int difference = abs(origDistance - otherDistance);
+      int xDiff = xVec - xVec2;
+      int yDiff = yVec - yVec2;
+
+      double difference = sqrt(pow(xDiff,2) + pow(yDiff,2));
+
+      //abs(origDistance - otherDistance);
 
       if( difference < threshhold){
         currentInliers++;
