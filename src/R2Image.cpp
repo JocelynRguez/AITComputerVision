@@ -922,8 +922,6 @@ blendOtherImageTranslated(R2Image * otherImage)
  Reject outliers
 */
 
-
-
   int count = 0;
   //number of iterations needed
   int iterations = 150;
@@ -978,10 +976,10 @@ blendOtherImageTranslated(R2Image * otherImage)
 
       //magnitude of difference vector
       double difference = sqrt(pow(xDiff,2) + pow(yDiff,2));
+      fprintf(stderr, "Difference: %f \n", difference);
 
       if( difference < threshhold){
         currentInliers++;
-        finalBadFeatures = badFeatures;
       }else{
         badFeatures.push_back(i);
       }
@@ -991,6 +989,7 @@ blendOtherImageTranslated(R2Image * otherImage)
     //update maxInliers
     if(maxInliers < currentInliers){
       maxInliers = currentInliers;
+      finalBadFeatures = badFeatures;
       fprintf(stderr, "Max Inliers: %d \n", maxInliers);
 
     }else{

@@ -31,11 +31,11 @@ popd
 # src/imgpro input/testpattern.jpg output/testpattern_harris.jpg \
 #           -harris 2.0
 
-src/imgpro input/test_E_sitting01.jpg output/test_E_sitting_match3.jpg \
-          -matchTranslation input/test_E_sitting02.jpg
-
-src/imgpro input/test_D_face01.jpg output/test_D_match3.jpg \
-          -matchTranslation input/test_D_face02.jpg
+# src/imgpro input/test_E_sitting01.jpg output/test_E_sitting_match3.jpg \
+#           -matchTranslation input/test_E_sitting02.jpg
+#
+# src/imgpro input/test_D_face01.jpg output/test_D_match3.jpg \
+#           -matchTranslation input/test_D_face02.jpg
 
 # src/imgpro input/test_C_bridge01.jpg output/test_C_harris.jpg \
 #           -harris 2.0
