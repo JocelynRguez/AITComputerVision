@@ -930,10 +930,9 @@ blendOtherImageTranslated(R2Image * otherImage)
   int maxInliers = 0;
   int currentInliers = 0;
 
-  double threshhold = 3; //apply the transform of projected data then get distance
+  double threshhold = 3;
 
-
-  //vector<int> goodFeatures;
+  //keep track of vectors to reject
   vector<int> badFeatures;
   vector<int> finalBadFeatures;
 
@@ -960,14 +959,7 @@ blendOtherImageTranslated(R2Image * otherImage)
     int xVec = xOrig - xMatch;
     int yVec = yOrig - yMatch;
 
-    // int xDiff = pow(xOrig - xMatch, 2);
-    // int yDiff = pow(yOrig - yMatch, 2);
-    //
-    // int origDistance = sqrt(xDiff + yDiff);
-
-    //fprintf(stderr, "origDistance: %d\n", origDistance);
-
-
+    //compute vectors for other pairs
     for(int i = 0; i < 150; i++){
 
       int x1 = featuresVec[i].centerX;
@@ -980,25 +972,15 @@ blendOtherImageTranslated(R2Image * otherImage)
       int xVec2 = x1 - x2;
       int yVec2 = y1 - y2;
 
-      // int xDiff2 = pow(x1 - x2, 2);
-      // int yDiff2 = pow(y1 - y2, 2);
-
-      //int xVec =
-
-      //int otherDistance = sqrt(xDiff2 + yDiff2);
-
-      //fprintf(stderr, "difference of distances: %d\n", origDistance - otherDistance);
-
+      //difference vector coordinates
       int xDiff = xVec - xVec2;
       int yDiff = yVec - yVec2;
 
+      //magnitude of difference vector
       double difference = sqrt(pow(xDiff,2) + pow(yDiff,2));
-
-      //abs(origDistance - otherDistance);
 
       if( difference < threshhold){
         currentInliers++;
-        //goodFeatures.push_back(i);
         finalBadFeatures = badFeatures;
       }else{
         badFeatures.push_back(i);
@@ -1006,12 +988,12 @@ blendOtherImageTranslated(R2Image * otherImage)
 
     }
 
+    //update maxInliers
     if(maxInliers < currentInliers){
       maxInliers = currentInliers;
       fprintf(stderr, "Max Inliers: %d \n", maxInliers);
 
     }else{
-      //goodFeatures.clear();
       badFeatures.clear();
     }
 
@@ -1019,9 +1001,8 @@ blendOtherImageTranslated(R2Image * otherImage)
     count++;
   }
 
-
+  //color rejecting lines
   for(int k = 0; k < finalBadFeatures.size(); k++){
-    // line(currX, finalX, currY, finalY, 0, 1, 0);
     int startX = featuresVec[finalBadFeatures[k]].centerX;
     int startY = featuresVec[finalBadFeatures[k]].centerY;
     int stopX = matchingFeatures[finalBadFeatures[k]].centerX;
@@ -1030,13 +1011,6 @@ blendOtherImageTranslated(R2Image * otherImage)
     line(startX, stopX, startY, stopY, 1, 0, 0);
   }
 
-
-
-  //double p = pow((1-pow((1-e), 4)), 150);
-
-
-	// into this image with a 50% opacity.
-	//fprintf(stderr, "fit other image using translation and blend imageB over imageA\n");
 	return;
 }
 
