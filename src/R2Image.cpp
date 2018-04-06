@@ -132,116 +132,251 @@ void R2Image::
 svdTest(void)
 {
 	// fit a 2D conic to five points
-	R2Point p1(1.2,3.5);
-	R2Point p2(2.1,2.2);
-	R2Point p3(0.2,1.6);
-	R2Point p4(0.0,0.25);
-	R2Point p5(-0.2,4.2);
+	// R2Point p1(1.2,3.5);
+	// R2Point p2(2.1,2.2);
+	// R2Point p3(0.2,1.6);
+	// R2Point p4(0.0,0.25);
+	// R2Point p5(-0.2,4.2);
+
+  vector<R2Point> points;
+  vector<R2Point> vectorA;
+  vector<R2Point> vectorB;
+
+  R2Point p1(0.0,0.0);
+  R2Point p2(1.0,0.0);
+  R2Point p3(1.0,1.0);
+  R2Point p4(0.0,1.0);
+
+  points.push_back(p1);
+  points.push_back(p2);
+  points.push_back(p3);
+  points.push_back(p4);
+
+  R2Point a1(1.0, 0.0);
+  R2Point a2(2.0, 0.0);
+  R2Point a3(2.0, 1.0);
+  R2Point a4(1.0, 1.0);
+
+
+  vectorA.push_back(a1);
+  vectorA.push_back(a2);
+  vectorA.push_back(a3);
+  vectorA.push_back(a4);
+
+  R2Point b1(1.0, 2.0);
+  R2Point b2(1.0, 1.0);
+  R2Point b3(3.0, 1.0);
+  R2Point b4(3.0, 2.0);
+
+
+  vectorB.push_back(b1);
+  vectorB.push_back(b2);
+  vectorB.push_back(b3);
+  vectorB.push_back(b4);
+
+
 
 	// build the 5x6 matrix of equations
-	double** linEquations = dmatrix(1,5,1,6);
+	//double** linEquations = dmatrix(1,5,1,6);
 
-	linEquations[1][1] = p1[0]*p1[0];
-	linEquations[1][2] = p1[0]*p1[1];
-	linEquations[1][3] = p1[1]*p1[1];
-	linEquations[1][4] = p1[0];
-	linEquations[1][5] = p1[1];
-	linEquations[1][6] = 1.0;
+  //8X9 matrix
+  double** linEquationsA = dmatrix(1,8,1,9);
+  double** linEquationsB = dmatrix(1,8,1,9);
 
-	linEquations[2][1] = p2[0]*p2[0];
-	linEquations[2][2] = p2[0]*p2[1];
-	linEquations[2][3] = p2[1]*p2[1];
-	linEquations[2][4] = p2[0];
-	linEquations[2][5] = p2[1];
-	linEquations[2][6] = 1.0;
 
-	linEquations[3][1] = p3[0]*p3[0];
-	linEquations[3][2] = p3[0]*p3[1];
-	linEquations[3][3] = p3[1]*p3[1];
-	linEquations[3][4] = p3[0];
-	linEquations[3][5] = p3[1];
-	linEquations[3][6] = 1.0;
+  for(int i = 0; i < 4; i++){
+      //first row
+      linEquationsA[2*i +1][1] = 0.0;
+    	linEquationsA[2*i +1][2] = 0.0;
+    	linEquationsA[2*i +1][3] = 0.0;
+    	linEquationsA[2*i +1][4] = -points[i][0]; //-w*x_a
+    	linEquationsA[2*i +1][5] = -points[i][1]; //-w*y_a
+    	linEquationsA[2*i +1][6] = -1.0; //-w*w
+      linEquationsA[2*i +1][7] = vectorA[i][1]*points[i][0]; //y_b*x_a
+      linEquationsA[2*i +1][8] = vectorA[i][1]*points[i][1]; //y_b*y_a
+      linEquationsA[2*i +1][9] = vectorA[i][1]; //y_b*w
 
-	linEquations[4][1] = p4[0]*p4[0];
-	linEquations[4][2] = p4[0]*p4[1];
-	linEquations[4][3] = p4[1]*p4[1];
-	linEquations[4][4] = p4[0];
-	linEquations[4][5] = p4[1];
-	linEquations[4][6] = 1.0;
+      //second row
+      linEquationsA[2*i +2][1] = points[i][0]; //w*x_a
+      linEquationsA[2*i +2][2] = points[i][1]; //w*y_a
+      linEquationsA[2*i +2][3] = 1.0; //w*w
+      linEquationsA[2*i +2][4] = 0.0;
+      linEquationsA[2*i +2][5] = 0.0;
+      linEquationsA[2*i +2][6] = 0.0;
+      linEquationsA[2*i +2][7] = -vectorA[i][0]*points[i][0]; //-x_b*x_a
+      linEquationsA[2*i +2][8] = -vectorA[i][0]*points[i][1]; //-x_b*y_a
+      linEquationsA[2*i +2][9] = -vectorA[i][0]; //-x_b*w
 
-	linEquations[5][1] = p5[0]*p5[0];
-	linEquations[5][2] = p5[0]*p5[1];
-	linEquations[5][3] = p5[1]*p5[1];
-	linEquations[5][4] = p5[0];
-	linEquations[5][5] = p5[1];
-	linEquations[5][6] = 1.0;
+  }
 
-	printf("\n Fitting a conic to five points:\n");
+  for(int i = 0; i < 4; i++){
+      //first row
+      linEquationsB[2*i +1][1] = 0.0;
+    	linEquationsB[2*i +1][2] = 0.0;
+    	linEquationsB[2*i +1][3] = 0.0;
+    	linEquationsB[2*i +1][4] = -points[i][0]; //-w*x_a
+    	linEquationsB[2*i +1][5] = -points[i][1]; //-w*y_a
+    	linEquationsB[2*i +1][6] = -1.0; //-w*w
+      linEquationsB[2*i +1][7] = vectorB[i][1]*points[i][0]; //y_b*x_a
+      linEquationsB[2*i +1][8] = vectorB[i][1]*points[i][1]; //y_b*y_a
+      linEquationsB[2*i +1][9] = vectorB[i][1]; //y_b*w
+
+      //second row
+      linEquationsB[2*i +2][1] = points[i][0]; //w*x_a
+      linEquationsB[2*i +2][2] = points[i][1]; //w*y_a
+      linEquationsB[2*i +2][3] = 1.0; //w*w
+      linEquationsB[2*i +2][4] = 0.0;
+      linEquationsB[2*i +2][5] = 0.0;
+      linEquationsB[2*i +2][6] = 0.0;
+      linEquationsB[2*i +2][7] = -vectorB[i][0]*points[i][0]; //-x_b*x_a
+      linEquationsB[2*i +2][8] = -vectorB[i][0]*points[i][1]; //-x_b*y_a
+      linEquationsB[2*i +2][9] = -vectorB[i][0]; //-x_b*w
+  }
+
+  fprintf(stderr, "Matrix A: \n");
+  for(int k = 1; k < 9; k++){
+    fprintf(stderr, "%f %f %f %f %f %f %f %f %f\n", linEquationsA[k][1], linEquationsA[k][2], linEquationsA[k][3], linEquationsA[k][4], linEquationsA[k][5], linEquationsA[k][6], linEquationsA[k][7], linEquationsA[k][8], linEquationsA[k][9]);
+
+  }
+
+  fprintf(stderr, "Matrix B: \n");
+  for(int k = 1; k < 9; k++){
+    fprintf(stderr, "%f %f %f %f %f %f %f %f %f\n", linEquationsB[k][1], linEquationsB[k][2], linEquationsA[k][3], linEquationsB[k][4], linEquationsB[k][5], linEquationsB[k][6], linEquationsA[k][7], linEquationsB[k][8], linEquationsB[k][9]);
+
+  }
+	// linEquations[1][1] = p1[0]*p1[0];
+	// linEquations[1][2] = p1[0]*p1[1];
+	// linEquations[1][3] = p1[1]*p1[1];
+	// linEquations[1][4] = p1[0];
+	// linEquations[1][5] = p1[1];
+	// linEquations[1][6] = 1.0;
+  //
+	// linEquations[2][1] = p2[0]*p2[0];
+	// linEquations[2][2] = p2[0]*p2[1];
+	// linEquations[2][3] = p2[1]*p2[1];
+	// linEquations[2][4] = p2[0];
+	// linEquations[2][5] = p2[1];
+	// linEquations[2][6] = 1.0;
+  //
+	// linEquations[3][1] = p3[0]*p3[0];
+	// linEquations[3][2] = p3[0]*p3[1];
+	// linEquations[3][3] = p3[1]*p3[1];
+	// linEquations[3][4] = p3[0];
+	// linEquations[3][5] = p3[1];
+	// linEquations[3][6] = 1.0;
+  //
+	// linEquations[4][1] = p4[0]*p4[0];
+	// linEquations[4][2] = p4[0]*p4[1];
+	// linEquations[4][3] = p4[1]*p4[1];
+	// linEquations[4][4] = p4[0];
+	// linEquations[4][5] = p4[1];
+	// linEquations[4][6] = 1.0;
+  //
+	// linEquations[5][1] = p5[0]*p5[0];
+	// linEquations[5][2] = p5[0]*p5[1];
+	// linEquations[5][3] = p5[1]*p5[1];
+	// linEquations[5][4] = p5[0];
+	// linEquations[5][5] = p5[1];
+	// linEquations[5][6] = 1.0;
+
+	printf("\n Fitting a conic to four points:\n");
 	printf("Point #1: %f,%f\n",p1[0],p1[1]);
 	printf("Point #2: %f,%f\n",p2[0],p2[1]);
 	printf("Point #3: %f,%f\n",p3[0],p3[1]);
 	printf("Point #4: %f,%f\n",p4[0],p4[1]);
-	printf("Point #5: %f,%f\n",p5[0],p5[1]);
 
 	// compute the SVD
-	double singularValues[7]; // 1..6
-	double** nullspaceMatrix = dmatrix(1,6,1,6);
-	svdcmp(linEquations, 5, 6, singularValues, nullspaceMatrix);
+	//double singularValues[7]; // 1..6
+  double singularValuesA[10]; // 1..9
+  double singularValuesB[10]; // 1..9
+
+	//double** nullspaceMatrix = dmatrix(1,6,1,6);
+  double** nullspaceMatrixA = dmatrix(1,9,1,9);
+  double** nullspaceMatrixB = dmatrix(1,9,1,9);
+	svdcmp(linEquationsA, 8, 9, singularValuesA, nullspaceMatrixA);
+  svdcmp(linEquationsB, 8, 9, singularValuesB, nullspaceMatrixB);
 
 	// get the result
-	printf("\n Singular values: %f, %f, %f, %f, %f, %f\n",singularValues[1],singularValues[2],singularValues[3],singularValues[4],singularValues[5],singularValues[6]);
+	fprintf(stderr, "\n Singular values A: %f, %f, %f, %f, %f, %f, %f, %f, %f\n", singularValuesA[1],singularValuesA[2],singularValuesA[3],singularValuesA[4],singularValuesA[5],singularValuesA[6], singularValuesA[7], singularValuesA[8], singularValuesA[9]);
 
 	// find the smallest singular value:
 	int smallestIndex = 1;
-	for(int i=2;i<7;i++) if(singularValues[i]<singularValues[smallestIndex]) smallestIndex=i;
+	for(int i=2;i<10;i++) if(singularValuesA[i]<singularValuesA[smallestIndex]) smallestIndex=i;
+
+  fprintf(stderr, "smallestIndex %d\n", smallestIndex);
 
 	// solution is the nullspace of the matrix, which is the column in V corresponding to the smallest singular value (which should be 0)
-	printf("Conic coefficients: %f, %f, %f, %f, %f, %f\n",nullspaceMatrix[1][smallestIndex],nullspaceMatrix[2][smallestIndex],nullspaceMatrix[3][smallestIndex],nullspaceMatrix[4][smallestIndex],nullspaceMatrix[5][smallestIndex],nullspaceMatrix[6][smallestIndex]);
+	fprintf(stderr, "H Values: %f, %f, %f, %f, %f, %f, %f, %f, %f\n",nullspaceMatrixA[1][smallestIndex],nullspaceMatrixA[2][smallestIndex],nullspaceMatrixA[3][smallestIndex],nullspaceMatrixA[4][smallestIndex],nullspaceMatrixA[5][smallestIndex],nullspaceMatrixA[6][smallestIndex],nullspaceMatrixA[7][smallestIndex],nullspaceMatrixA[8][smallestIndex],nullspaceMatrixA[9][smallestIndex]);
 
-	// make sure the solution is correct:
-	printf("Equation #1 result: %f\n",	p1[0]*p1[0]*nullspaceMatrix[1][smallestIndex] +
-										p1[0]*p1[1]*nullspaceMatrix[2][smallestIndex] +
-										p1[1]*p1[1]*nullspaceMatrix[3][smallestIndex] +
-										p1[0]*nullspaceMatrix[4][smallestIndex] +
-										p1[1]*nullspaceMatrix[5][smallestIndex] +
-										nullspaceMatrix[6][smallestIndex]);
+  // get the result
+	fprintf(stderr, "\n Singular values B: %f, %f, %f, %f, %f, %f, %f, %f, %f\n", singularValuesB[1],singularValuesB[2],singularValuesB[3],singularValuesB[4],singularValuesB[5],singularValuesB[6], singularValuesB[7], singularValuesB[8], singularValuesB[9]);
 
-	printf("Equation #2 result: %f\n",	p2[0]*p2[0]*nullspaceMatrix[1][smallestIndex] +
-										p2[0]*p2[1]*nullspaceMatrix[2][smallestIndex] +
-										p2[1]*p2[1]*nullspaceMatrix[3][smallestIndex] +
-										p2[0]*nullspaceMatrix[4][smallestIndex] +
-										p2[1]*nullspaceMatrix[5][smallestIndex] +
-										nullspaceMatrix[6][smallestIndex]);
+	// find the smallest singular value:
+	int smallestIndexB = 1;
+	for(int i=2;i<10;i++) if(singularValuesB[i]<singularValuesB[smallestIndexB]) smallestIndexB=i;
 
-	printf("Equation #3 result: %f\n",	p3[0]*p3[0]*nullspaceMatrix[1][smallestIndex] +
-										p3[0]*p3[1]*nullspaceMatrix[2][smallestIndex] +
-										p3[1]*p3[1]*nullspaceMatrix[3][smallestIndex] +
-										p3[0]*nullspaceMatrix[4][smallestIndex] +
-										p3[1]*nullspaceMatrix[5][smallestIndex] +
-										nullspaceMatrix[6][smallestIndex]);
+  fprintf(stderr, "smallestIndexB: %d\n", smallestIndexB);
 
-	printf("Equation #4 result: %f\n",	p4[0]*p4[0]*nullspaceMatrix[1][smallestIndex] +
-										p4[0]*p4[1]*nullspaceMatrix[2][smallestIndex] +
-										p4[1]*p4[1]*nullspaceMatrix[3][smallestIndex] +
-										p4[0]*nullspaceMatrix[4][smallestIndex] +
-										p4[1]*nullspaceMatrix[5][smallestIndex] +
-										nullspaceMatrix[6][smallestIndex]);
+	// solution is the nullspace of the matrix, which is the column in V corresponding to the smallest singular value (which should be 0)
+	fprintf(stderr, "H Values: %f, %f, %f, %f, %f, %f, %f, %f, %f\n",nullspaceMatrixB[1][smallestIndexB],nullspaceMatrixB[2][smallestIndexB],nullspaceMatrixB[3][smallestIndexB],nullspaceMatrixB[4][smallestIndexB],nullspaceMatrixB[5][smallestIndexB],nullspaceMatrixB[6][smallestIndexB],nullspaceMatrixB[7][smallestIndexB],nullspaceMatrixB[8][smallestIndexB],nullspaceMatrixB[9][smallestIndexB]);
 
-	printf("Equation #5 result: %f\n",	p5[0]*p5[0]*nullspaceMatrix[1][smallestIndex] +
-										p5[0]*p5[1]*nullspaceMatrix[2][smallestIndex] +
-										p5[1]*p5[1]*nullspaceMatrix[3][smallestIndex] +
-										p5[0]*nullspaceMatrix[4][smallestIndex] +
-										p5[1]*nullspaceMatrix[5][smallestIndex] +
-										nullspaceMatrix[6][smallestIndex]);
+//	make sure the solution is correct:
+    for(int n = 1; n < 9; n ++){
+      printf("Equation #%d result: %f\n", n,	linEquationsA[n][1]*nullspaceMatrixA[1][smallestIndex] +
+    	linEquationsA[n][2]*nullspaceMatrixA[2][smallestIndex] +
+    	linEquationsA[n][3]*nullspaceMatrixA[3][smallestIndex] +
+    	linEquationsA[n][4]*nullspaceMatrixA[4][smallestIndex] +
+    	linEquationsA[n][5]*nullspaceMatrixA[5][smallestIndex] +
+    	linEquationsA[n][6]*nullspaceMatrixA[6][smallestIndex] +
+      linEquationsA[n][7]*nullspaceMatrixA[7][smallestIndex] +
+      linEquationsA[n][8]*nullspaceMatrixA[8][smallestIndex] +
+      linEquationsA[n][9]*nullspaceMatrixA[9][smallestIndex]);
 
-	R2Point test_point(0.34,-2.8);
+    }
 
-	printf("A point off the conic: %f\n",	test_point[0]*test_point[0]*nullspaceMatrix[1][smallestIndex] +
-											test_point[0]*test_point[1]*nullspaceMatrix[2][smallestIndex] +
-											test_point[1]*test_point[1]*nullspaceMatrix[3][smallestIndex] +
-											test_point[0]*nullspaceMatrix[4][smallestIndex] +
-											test_point[1]*nullspaceMatrix[5][smallestIndex] +
-											nullspaceMatrix[6][smallestIndex]);
+	// printf("Equation #1 result: %f\n",	p1[0]*p1[0]*nullspaceMatrixA[1][smallestIndex] +
+	// 									p1[0]*p1[1]*nullspaceMatrixA[2][smallestIndex] +
+	// 									p1[1]*p1[1]*nullspaceMatrixA[3][smallestIndex] +
+	// 									p1[0]*nullspaceMatrixA[4][smallestIndex] +
+	// 									p1[1]*nullspaceMatrixA[5][smallestIndex] +
+	// 									nullspaceMatrixA[6][smallestIndex]);
+  //
+	// printf("Equation #2 result: %f\n",	p2[0]*p2[0]*nullspaceMatrixA[1][smallestIndex] +
+	// 									p2[0]*p2[1]*nullspaceMatrixA[2][smallestIndex] +
+	// 									p2[1]*p2[1]*nullspaceMatrixA[3][smallestIndex] +
+	// 									p2[0]*nullspaceMatrixA[4][smallestIndex] +
+	// 									p2[1]*nullspaceMatrixA[5][smallestIndex] +
+	// 									nullspaceMatrixA[6][smallestIndex]);
+  //
+	// printf("Equation #3 result: %f\n",	p3[0]*p3[0]*nullspaceMatrixA[1][smallestIndex] +
+	// 									p3[0]*p3[1]*nullspaceMatrixA[2][smallestIndex] +
+	// 									p3[1]*p3[1]*nullspaceMatrixA[3][smallestIndex] +
+	// 									p3[0]*nullspaceMatrixA[4][smallestIndex] +
+	// 									p3[1]*nullspaceMatrixA[5][smallestIndex] +
+	// 									nullspaceMatrixA[6][smallestIndex]);
+  //
+	// printf("Equation #4 result: %f\n",	p4[0]*p4[0]*nullspaceMatrixA[1][smallestIndex] +
+	// 									p4[0]*p4[1]*nullspaceMatrixA[2][smallestIndex] +
+	// 									p4[1]*p4[1]*nullspaceMatrixA[3][smallestIndex] +
+	// 									p4[0]*nullspaceMatrixA[4][smallestIndex] +
+	// 									p4[1]*nullspaceMatrixA[5][smallestIndex] +
+	// 									nullspaceMatrixA[6][smallestIndex]);
+
+	// printf("Equation #5 result: %f\n",	p5[0]*p5[0]*nullspaceMatrixA[1][smallestIndex] +
+	// 									p5[0]*p5[1]*nullspaceMatrixA[2][smallestIndex] +
+	// 									p5[1]*p5[1]*nullspaceMatrixA[3][smallestIndex] +
+	// 									p5[0]*nullspaceMatrixA[4][smallestIndex] +
+	// 									p5[1]*nullspaceMatrixA[5][smallestIndex] +
+	// 									nullspaceMatrixA[6][smallestIndex]);
+
+	// R2Point test_point(0.34,-2.8);
+  //
+	// printf("A point off the conic: %f\n",	test_point[0]*test_point[0]*nullspaceMatrix[1][smallestIndex] +
+	// 										test_point[0]*test_point[1]*nullspaceMatrix[2][smallestIndex] +
+	// 										test_point[1]*test_point[1]*nullspaceMatrix[3][smallestIndex] +
+	// 										test_point[0]*nullspaceMatrix[4][smallestIndex] +
+	// 										test_point[1]*nullspaceMatrix[5][smallestIndex] +
+	// 										nullspaceMatrix[6][smallestIndex]);
 
 	return;
 }
@@ -599,6 +734,7 @@ filterHarris(vector<Feature> values){
       }
 
 vector<Feature> featuresVec;
+vector<Feature> matchingFeatures;
 
 void R2Image::
 Harris(double sigma)
@@ -856,7 +992,7 @@ blendOtherImageTranslated(R2Image * otherImage)
   double sum1;
   double sum2;
 
-  vector<Feature> matchingFeatures;
+
 
   //go though 150 features & compute avg of window
    for(int index = 0; index < featuresVec.size(); index++ ){
@@ -1018,6 +1154,11 @@ blendOtherImageHomography(R2Image * otherImage)
 {
 	// find at least 100 features on this image, and another 100 on the "otherImage". Based on these,
 	// compute the matching homography, and blend the transformed "otherImage" into this image with a 50% opacity.
+
+  //hw8 4 points in A image
+
+
+
 	fprintf(stderr, "fit other image using a homography and blend imageB over imageA\n");
 	return;
 }

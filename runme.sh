@@ -44,8 +44,8 @@ popd
 #           -harris 2.0
 #
 
-src/imgpro input/test_C_bridge01.jpg output/test_C_bridge_match3.jpg \
-          -matchTranslation input/test_C_bridge02.jpg
+# src/imgpro input/test_C_bridge01.jpg output/test_C_bridge_match3.jpg \
+#           -matchTranslation input/test_C_bridge02.jpg
 #
 # src/imgpro input/scc01.jpg output/scc_match.jpg \
 #           -matchTranslation input/scc02.jpg
@@ -53,3 +53,7 @@ src/imgpro input/test_C_bridge01.jpg output/test_C_bridge_match3.jpg \
 
 # src/imgpro input/test_B_sony.jpg output/test_B_sony_harris2.jpg \
 #           -harris 2.0
+
+
+src/imgpro input/testpattern.jpg output/fake.jpg \
+          -svdTest
