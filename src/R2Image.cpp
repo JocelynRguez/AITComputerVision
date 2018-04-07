@@ -189,8 +189,8 @@ svdTest(void)
       linEquationsA[2*i +1][1] = 0.0;
     	linEquationsA[2*i +1][2] = 0.0;
     	linEquationsA[2*i +1][3] = 0.0;
-    	linEquationsA[2*i +1][4] = -points[i][0]; //-w*x_a
-    	linEquationsA[2*i +1][5] = -points[i][1]; //-w*y_a
+    	linEquationsA[2*i +1][4] = (-1.0)*points[i][0]; //-w*x_a
+    	linEquationsA[2*i +1][5] = (-1.0)*points[i][1]; //-w*y_a
     	linEquationsA[2*i +1][6] = -1.0; //-w*w
       linEquationsA[2*i +1][7] = vectorA[i][1]*points[i][0]; //y_b*x_a
       linEquationsA[2*i +1][8] = vectorA[i][1]*points[i][1]; //y_b*y_a
@@ -203,9 +203,9 @@ svdTest(void)
       linEquationsA[2*i +2][4] = 0.0;
       linEquationsA[2*i +2][5] = 0.0;
       linEquationsA[2*i +2][6] = 0.0;
-      linEquationsA[2*i +2][7] = -vectorA[i][0]*points[i][0]; //-x_b*x_a
-      linEquationsA[2*i +2][8] = -vectorA[i][0]*points[i][1]; //-x_b*y_a
-      linEquationsA[2*i +2][9] = -vectorA[i][0]; //-x_b*w
+      linEquationsA[2*i +2][7] = -(vectorA[i][0]*points[i][0]); //-x_b*x_a
+      linEquationsA[2*i +2][8] = -(vectorA[i][0]*points[i][1]); //-x_b*y_a
+      linEquationsA[2*i +2][9] = (-1.0)*vectorA[i][0]; //-x_b*w
 
   }
 
@@ -233,13 +233,17 @@ svdTest(void)
       linEquationsB[2*i +2][9] = -vectorB[i][0]; //-x_b*w
   }
 
-  fprintf(stderr, "Matrix A: \n");
+  // vector<int> A = dmatrix(1,8,1,9);
+  // double** B = dmatrix(1,8,1,9);
+
+
+  fprintf(stderr, "Matrix for A points: \n");
   for(int k = 1; k < 9; k++){
     fprintf(stderr, "%f %f %f %f %f %f %f %f %f\n", linEquationsA[k][1], linEquationsA[k][2], linEquationsA[k][3], linEquationsA[k][4], linEquationsA[k][5], linEquationsA[k][6], linEquationsA[k][7], linEquationsA[k][8], linEquationsA[k][9]);
 
   }
 
-  fprintf(stderr, "Matrix B: \n");
+  fprintf(stderr, "Matrix for B points: \n");
   for(int k = 1; k < 9; k++){
     fprintf(stderr, "%f %f %f %f %f %f %f %f %f\n", linEquationsB[k][1], linEquationsB[k][2], linEquationsA[k][3], linEquationsB[k][4], linEquationsB[k][5], linEquationsB[k][6], linEquationsA[k][7], linEquationsB[k][8], linEquationsB[k][9]);
 
@@ -279,7 +283,7 @@ svdTest(void)
 	// linEquations[5][5] = p5[1];
 	// linEquations[5][6] = 1.0;
 
-	printf("\n Fitting a conic to four points:\n");
+	printf("\n Four points: \n");
 	printf("Point #1: %f,%f\n",p1[0],p1[1]);
 	printf("Point #2: %f,%f\n",p2[0],p2[1]);
 	printf("Point #3: %f,%f\n",p3[0],p3[1]);
@@ -297,19 +301,27 @@ svdTest(void)
   svdcmp(linEquationsB, 8, 9, singularValuesB, nullspaceMatrixB);
 
 	// get the result
-	fprintf(stderr, "\n Singular values A: %f, %f, %f, %f, %f, %f, %f, %f, %f\n", singularValuesA[1],singularValuesA[2],singularValuesA[3],singularValuesA[4],singularValuesA[5],singularValuesA[6], singularValuesA[7], singularValuesA[8], singularValuesA[9]);
+	fprintf(stderr, "\nSingular values A: %f, %f, %f, %f, %f, %f, %f, %f, %f\n", singularValuesA[1],singularValuesA[2],singularValuesA[3],singularValuesA[4],singularValuesA[5],singularValuesA[6], singularValuesA[7], singularValuesA[8], singularValuesA[9]);
 
 	// find the smallest singular value:
 	int smallestIndex = 1;
 	for(int i=2;i<10;i++) if(singularValuesA[i]<singularValuesA[smallestIndex]) smallestIndex=i;
 
-  fprintf(stderr, "smallestIndex %d\n", smallestIndex);
+  fprintf(stderr, "smallestIndexA %d\n", smallestIndex);
 
-	// solution is the nullspace of the matrix, which is the column in V corresponding to the smallest singular value (which should be 0)
-	fprintf(stderr, "H Values: %f, %f, %f, %f, %f, %f, %f, %f, %f\n",nullspaceMatrixA[1][smallestIndex],nullspaceMatrixA[2][smallestIndex],nullspaceMatrixA[3][smallestIndex],nullspaceMatrixA[4][smallestIndex],nullspaceMatrixA[5][smallestIndex],nullspaceMatrixA[6][smallestIndex],nullspaceMatrixA[7][smallestIndex],nullspaceMatrixA[8][smallestIndex],nullspaceMatrixA[9][smallestIndex]);
+  // solution is the nullspace of the matrix, which is the column in V corresponding to the smallest singular value (which should be 0)
+  fprintf(stderr, "H Values: %f, %f, %f, %f, %f, %f, %f, %f, %f\n\n",nullspaceMatrixA[1][smallestIndex],nullspaceMatrixA[2][smallestIndex],nullspaceMatrixA[3][smallestIndex],nullspaceMatrixA[4][smallestIndex],nullspaceMatrixA[5][smallestIndex],nullspaceMatrixA[6][smallestIndex],nullspaceMatrixA[7][smallestIndex],nullspaceMatrixA[8][smallestIndex],nullspaceMatrixA[9][smallestIndex]);
+
+
+  fprintf(stderr, "H Matrix for A points: \n");
+  for(int j = 1; j < 9; j = j+3){
+      fprintf(stderr, "%f, %f, %f \n", nullspaceMatrixA[j][smallestIndex],nullspaceMatrixA[j
+      +1][smallestIndex], nullspaceMatrixA[j+2][smallestIndex]);
+  }
+
 
   // get the result
-	fprintf(stderr, "\n Singular values B: %f, %f, %f, %f, %f, %f, %f, %f, %f\n", singularValuesB[1],singularValuesB[2],singularValuesB[3],singularValuesB[4],singularValuesB[5],singularValuesB[6], singularValuesB[7], singularValuesB[8], singularValuesB[9]);
+	fprintf(stderr, "\nSingular values B: %f, %f, %f, %f, %f, %f, %f, %f, %f\n", singularValuesB[1],singularValuesB[2],singularValuesB[3],singularValuesB[4],singularValuesB[5],singularValuesB[6], singularValuesB[7], singularValuesB[8], singularValuesB[9]);
 
 	// find the smallest singular value:
 	int smallestIndexB = 1;
@@ -317,22 +329,28 @@ svdTest(void)
 
   fprintf(stderr, "smallestIndexB: %d\n", smallestIndexB);
 
+  fprintf(stderr, "H Values: %f, %f, %f, %f, %f, %f, %f, %f, %f\n\n",nullspaceMatrixB[1][smallestIndexB],nullspaceMatrixB[2][smallestIndexB],nullspaceMatrixB[3][smallestIndexB],nullspaceMatrixB[4][smallestIndexB],nullspaceMatrixB[5][smallestIndexB],nullspaceMatrixB[6][smallestIndexB],nullspaceMatrixB[7][smallestIndexB],nullspaceMatrixB[8][smallestIndexB],nullspaceMatrixB[9][smallestIndexB]);
+
 	// solution is the nullspace of the matrix, which is the column in V corresponding to the smallest singular value (which should be 0)
-	fprintf(stderr, "H Values: %f, %f, %f, %f, %f, %f, %f, %f, %f\n",nullspaceMatrixB[1][smallestIndexB],nullspaceMatrixB[2][smallestIndexB],nullspaceMatrixB[3][smallestIndexB],nullspaceMatrixB[4][smallestIndexB],nullspaceMatrixB[5][smallestIndexB],nullspaceMatrixB[6][smallestIndexB],nullspaceMatrixB[7][smallestIndexB],nullspaceMatrixB[8][smallestIndexB],nullspaceMatrixB[9][smallestIndexB]);
+  fprintf(stderr, "H Matrix for B points: \n");
+  for(int j = 1; j < 10; j=j+3){
+    	fprintf(stderr, "%f, %f, %f \n", nullspaceMatrixB[j][smallestIndexB],nullspaceMatrixB[j+1][smallestIndexB], nullspaceMatrixB[j+2][smallestIndexB]);
+  }
+
 
 //	make sure the solution is correct:
-    for(int n = 1; n < 9; n ++){
-      printf("Equation #%d result: %f\n", n,	linEquationsA[n][1]*nullspaceMatrixA[1][smallestIndex] +
-    	linEquationsA[n][2]*nullspaceMatrixA[2][smallestIndex] +
-    	linEquationsA[n][3]*nullspaceMatrixA[3][smallestIndex] +
-    	linEquationsA[n][4]*nullspaceMatrixA[4][smallestIndex] +
-    	linEquationsA[n][5]*nullspaceMatrixA[5][smallestIndex] +
-    	linEquationsA[n][6]*nullspaceMatrixA[6][smallestIndex] +
-      linEquationsA[n][7]*nullspaceMatrixA[7][smallestIndex] +
-      linEquationsA[n][8]*nullspaceMatrixA[8][smallestIndex] +
-      linEquationsA[n][9]*nullspaceMatrixA[9][smallestIndex]);
-
-    }
+    // for(int n = 1; n < 9; n ++){
+    //   printf("Equation #%d result: %f\n", n,	linEquationsA[n][1]*nullspaceMatrixA[1][smallestIndex] +
+    // 	linEquationsA[n][2]*nullspaceMatrixA[2][smallestIndex] +
+    // 	linEquationsA[n][3]*nullspaceMatrixA[3][smallestIndex] +
+    // 	linEquationsA[n][4]*nullspaceMatrixA[4][smallestIndex] +
+    // 	linEquationsA[n][5]*nullspaceMatrixA[5][smallestIndex] +
+    // 	linEquationsA[n][6]*nullspaceMatrixA[6][smallestIndex] +
+    //   linEquationsA[n][7]*nullspaceMatrixA[7][smallestIndex] +
+    //   linEquationsA[n][8]*nullspaceMatrixA[8][smallestIndex] +
+    //   linEquationsA[n][9]*nullspaceMatrixA[9][smallestIndex]);
+    //
+    // }
 
 	// printf("Equation #1 result: %f\n",	p1[0]*p1[0]*nullspaceMatrixA[1][smallestIndex] +
 	// 									p1[0]*p1[1]*nullspaceMatrixA[2][smallestIndex] +
