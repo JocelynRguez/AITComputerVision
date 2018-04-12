@@ -6,6 +6,14 @@ using namespace std;
 
 
 // this structure is defined at the same level as function definitions
+
+struct svdResult
+{
+  double** Hmatrix;
+  double* hValues;
+};
+
+
 struct Feature
 {
     int centerX;
@@ -96,11 +104,12 @@ class R2Image {
   void ChangeSaturation(double factor);
 
   // show how SVD works
-  void svdTest();
+  vector<double> svdTest(vector<R2Point> startPoints, vector<R2Point> endPoints);
 
   //helper functions
   vector<Feature> filterHarris(vector<Feature> values);
   void line(int x0, int x1, int y0, int y1, float r, float g, float b);
+  void findMatchingFeatures(R2Image* otherImage);
 
 
   // Linear filtering operations

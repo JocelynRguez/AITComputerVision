@@ -34,7 +34,7 @@
 
 static char options[] =
 "  -help\n"
-"  -svdTest\n"
+"  -svdTest <file:other_image>\n"
 "  -sobelX\n"
 "  -sobelY\n"
 "  -log\n"
@@ -136,12 +136,13 @@ main(int argc, char **argv)
     if (!strcmp(argv[i], "-help")) {
       ShowUsage();
     }
-	if (!strcmp(argv[i], "-svdTest")) {
-      R2Image *image = new R2Image();
-	  image->svdTest();
-	  return 0;
-    }
-	else if (!strcmp(argv[i], "-video")) {
+	// if (!strcmp(argv[i], "-svdTest")) {
+  //     R2Image *image = new R2Image();
+	//     image->svdTest(other_image);
+	//   return 0;
+  //   }
+	//  else
+   if (!strcmp(argv[i], "-video")) {
 		printf("Video processing started\n");
 
 		char inputName[100] = "../../videoinput/input%07d.jpg";

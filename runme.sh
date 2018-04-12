@@ -40,9 +40,9 @@ popd
 # src/imgpro input/test_C_bridge01.jpg output/test_C_harris.jpg \
 #           -harris 2.0
 #
-# src/imgpro input/test_C_bridge02.jpg output/test_C_harris2.jpg \
+# src/imgpro input/colorA.jpg output/test_C_harris2.jpg \
 #           -harris 2.0
-#
+
 
 # src/imgpro input/test_C_bridge01.jpg output/test_C_bridge_match3.jpg \
 #           -matchTranslation input/test_C_bridge02.jpg
@@ -55,5 +55,13 @@ popd
 #           -harris 2.0
 
 
-src/imgpro input/testpattern.jpg output/fake.jpg \
-          -svdTest
+# src/imgpro input/testpattern.jpg output/fake.jpg \
+#           -svdTest
+
+# src/imgpro input/colorB.jpg output/color_homography2.jpg \
+#           -matchHomography input/colorA.jpg
+
+src/imgpro input/test_C_bridge01.jpg output/bridge_homography.jpg \
+          -matchHomography input/test_C_bridge02.jpg
+src/imgpro input/test_D_face01.jpg output/face_homography.jpg \
+          -matchHomography input/test_D_face02.jpg
