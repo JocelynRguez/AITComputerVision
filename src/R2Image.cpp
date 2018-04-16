@@ -647,7 +647,7 @@ Harris(double sigma)
        //fprintf(stderr, "R: (%f) G:(%f) B:(%f) sum:(%f)\n", Pixel(x,y).Red(), Pixel(x,y).Blue(), Pixel(x,y).Green(), rgbsum);
 
           //fprintf(stderr, "Sum (%f), count(%d)\n", rgbsum, count);
-          //fprintf(stderr, "R: (%f) G:(%f) B:(%f) Luminance (%f) count(%d) sum(%f)\n", Pixel(x,y).Red(), Pixel(x,y).Blue(), Pixel(x,y).Green(), Pixel(x,y).Luminance(), count, rgbsum);
+          //fprintf(stderr, "R: (%f) G:(%f) B:(%f) Luminance (%f) count(%d) sum(%f)\n", Pixel(x,y).Re/d(), Pixel(x,y).Blue(), Pixel(x,y).Green(), Pixel(x,y).Luminance(), count, rgbsum);
 
           Feature temp(x, y, tempImg.Pixel(x,y));
           values.push_back(temp);
@@ -1045,9 +1045,9 @@ findMatchingFeatures(R2Image* otherImage){
            for(int i = -window; i <= window; i++){
              for(int j = -window; j <= window ; j++){
 
-                sum1 = thirdImage.Pixel(currX+i, currY+j).Red()+thirdImage.Pixel(currX+i, currY+j).Green() + thirdImage.Pixel(currX+i, currY+j).Blue();
+                 sum1 = thirdImage.Pixel(currX+i, currY+j).Luminance();
 
-                 sum2 = secondImage.Pixel(x+i, y+j).Red() +secondImage.Pixel(x+i, y+j).Green() + secondImage.Pixel(x+i, y+j).Blue();
+                 sum2 = secondImage.Pixel(x+i, y+j).Luminance();
 
                  //compute ssd
                  diff = sum1 - sum2;
@@ -1115,6 +1115,7 @@ blendOtherImageHomography(R2Image * otherImage)
 
   vector<R2Point> startPoints;
   vector<R2Point> endPoints;
+  vector<double> bestHMatrix;
 
   double computation = 0.0;
   //double computation2 = 0.0;
@@ -1169,9 +1170,9 @@ blendOtherImageHomography(R2Image * otherImage)
     //double** A = dmatrix(1,2,1,9);
 
 
-    fprintf(stderr, "hValues: %f %f %f %f %f %f %f %f %f \n", hValues[0], hValues[1], hValues[2],
-     hValues[3], hValues[4], hValues[5],
-    hValues[6], hValues[7], hValues[8] );
+    // fprintf(stderr, "hValues: %f %f %f %f %f %f %f %f %f \n", hValues[0], hValues[1], hValues[2],
+    //  hValues[3], hValues[4], hValues[5],
+    // hValues[6], hValues[7], hValues[8] );
 
 
     for(int i = 0; i < 150; i++){
@@ -1194,18 +1195,18 @@ blendOtherImageHomography(R2Image * otherImage)
       yVal = hValues[3]*pointA[0] + hValues[4]*pointA[1] + hValues[5]*pointA[2];
       zVal = hValues[6]*pointA[0] + hValues[7]*pointA[1] + hValues[8]*pointA[2];
 
-      fprintf(stderr, "A Point: <%f, %f>\n", pointA[0], pointA[1] );
-      fprintf(stderr, "Vector:  <%f, %f, %f>\n", xVal, yVal, zVal);
+      // fprintf(stderr, "A Point: <%f, %f>\n", pointA[0], pointA[1] );
+      // fprintf(stderr, "Vector:  <%f, %f, %f>\n", xVal, yVal, zVal);
 
       double xResult = xVal/zVal;
       double yResult = yVal/zVal;
 
-      fprintf(stderr, "Result Point: <%f, %f>\n", xResult, yResult);
-      fprintf(stderr, "B Point: <%f, %f>\n", pointB[0], pointB[1]);
+      // fprintf(stderr, "Result Point: <%f, %f>\n", xResult, yResult);
+      // fprintf(stderr, "B Point: <%f, %f>\n", pointB[0], pointB[1]);
 
       computation = sqrt(pow((xResult - pointB[0]),2) + pow(yResult - pointB[1],2));
 
-      fprintf(stderr, "\nComputation of Distance: %f\n", computation );
+      // fprintf(stderr, "\nComputation of Distance: %f\n", computation );
       if(computation < threshhold){
         //fprintf(stderr, "%s\n", );
         inliers++;
@@ -1223,6 +1224,7 @@ blendOtherImageHomography(R2Image * otherImage)
       maxInliers = inliers;
       finalGoodFeatures = goodFeatures;
       finalBadFeatures = badFeatures;
+      bestHMatrix = hValues;
       fprintf(stderr, "\nMaxInliers: %d\n", maxInliers );
     }
 
@@ -1257,13 +1259,288 @@ blendOtherImageHomography(R2Image * otherImage)
 
 	// find at least 100 features on this image, and another 100 on the "otherImage". Based on these,
 	// compute the matching homography, and blend the transformed "otherImage" into this image with a 50% opacity.
+  // warp(finalGoodFeatures, bestHMatrix);
+    int goodIndex1 = finalGoodFeatures[rand()%goodFeatures.size()];
+    int goodIndex2 = finalGoodFeatures[rand()%goodFeatures.size()];
+    int goodIndex3 = finalGoodFeatures[rand()%goodFeatures.size()];
+    int goodIndex4 = finalGoodFeatures[rand()%goodFeatures.size()];
 
-  //hw8 4 points in A image
+    Feature rand1;
+    Feature rand2;
+    Feature rand3;
+    Feature rand4;
+
+    Feature match1;
+    Feature match2;
+    Feature match3;
+    Feature match4;
+
+    vector<R2Point> stPoints;
+    vector<R2Point> edPoints;
+
+    rand1 = featuresVec[goodIndex1];
+    rand2 = featuresVec[goodIndex2];
+    rand3 = featuresVec[goodIndex3];
+    rand4 = featuresVec[goodIndex4];
+
+    match1 = matchingFeatures[goodIndex1];
+    match2 = matchingFeatures[goodIndex2];
+    match3 = matchingFeatures[goodIndex3];
+    match4 = matchingFeatures[goodIndex4];
+
+    R2Point p9(rand1.centerX,rand1.centerY);
+    R2Point p10(rand2.centerX,rand2.centerY);
+    R2Point p11(rand3.centerX,rand3.centerY);
+    R2Point p12(rand4.centerX,rand4.centerY);
+
+    R2Point p13(match1.centerX,match1.centerY);
+    R2Point p14(match2.centerX,match2.centerY);
+    R2Point p15(match3.centerX,match3.centerY);
+    R2Point p16(match4.centerX,match4.centerY);
+
+    stPoints.push_back(p9);
+    stPoints.push_back(p10);
+    stPoints.push_back(p11);
+    stPoints.push_back(p12);
+
+    edPoints.push_back(p13);
+    edPoints.push_back(p14);
+    edPoints.push_back(p15);
+    edPoints.push_back(p16);
+
+    vector<double> hOrig = svdTest(stPoints, edPoints);
+    fprintf(stderr, "\nH Matrix:\n");
+    fprintf(stderr, "%f %f %f\n", hOrig[0], hOrig[1], hOrig[2]);
+    fprintf(stderr, "%f %f %f\n", hOrig[3], hOrig[4], hOrig[5]);
+    fprintf(stderr, "%f %f %f\n", hOrig[6], hOrig[7], hOrig[8]);
+
+    double** bestMatrix = dmatrix(1,3,1,3);
+    for(int i = 1; i < 4; i++){
+      bestMatrix[1][i] = hOrig[i-0];
+      bestMatrix[2][i] = hOrig[i+2];
+      bestMatrix[3][i] = hOrig[i+5];
+    }
+
+    // fprintf(stderr, "\nH Matrix:\n");
+    // fprintf(stderr, "%f %f %f\n", bestHMatrix[0], bestHMatrix[1], bestHMatrix[2]);
+    // fprintf(stderr, "%f %f %f\n", bestHMatrix[3], bestHMatrix[4], bestHMatrix[5]);
+    // fprintf(stderr, "%f %f %f\n", bestHMatrix[6], bestHMatrix[7], bestHMatrix[8]);
+
+    double det =
+    bestMatrix[1][1]*(bestMatrix[2][2]*bestMatrix[3][3] - bestMatrix[3][2]*bestMatrix[2][3])
+    - bestMatrix[1][2]*(bestMatrix[2][1]*bestMatrix[3][3] - bestMatrix[2][3]*bestMatrix[3][1]
+    + bestMatrix[1][3]*(bestMatrix[2][1]*bestMatrix[3][2] - bestMatrix[2][2]*bestMatrix[3][1]));
+
+    double invdet = 1/det;
+
+    double** invMatrix = dmatrix(1,3,1,3);
+    invMatrix[1][1] = (bestMatrix[2][2]*bestMatrix[3][3] - bestMatrix[3][2]*bestMatrix[2][3])*invdet;
+    invMatrix[1][1] = (bestMatrix[1][3]*bestMatrix[3][2] - bestMatrix[1][2]*bestMatrix[3][3])*invdet;
+    invMatrix[1][3] = (bestMatrix[1][2]*bestMatrix[2][3] - bestMatrix[1][3]*bestMatrix[2][2])*invdet;
+
+    invMatrix[2][1] = (bestMatrix[2][3]*bestMatrix[3][1] - bestMatrix[2][1]*bestMatrix[3][3])*invdet;
+    invMatrix[2][1] = (bestMatrix[1][1]*bestMatrix[3][3] - bestMatrix[1][3]*bestMatrix[3][1])*invdet;
+    invMatrix[2][3] = (bestMatrix[2][1]*bestMatrix[1][3] - bestMatrix[1][1]*bestMatrix[2][3])*invdet;
+
+    invMatrix[3][1] = (bestMatrix[2][1]*bestMatrix[3][2] - bestMatrix[3][1]*bestMatrix[2][2])*invdet;
+    invMatrix[3][1] = (bestMatrix[3][1]*bestMatrix[1][2] - bestMatrix[1][1]*bestMatrix[3][2])*invdet;
+    invMatrix[3][3] = (bestMatrix[1][1]*bestMatrix[2][2] - bestMatrix[2][1]*bestMatrix[1][2])*invdet;
+
+    fprintf(stderr, "\nH Inverses:\n");
+    fprintf(stderr, "%f %f %f\n", invMatrix[1][1], invMatrix[1][2], invMatrix[1][3]);
+    fprintf(stderr, "%f %f %f\n", invMatrix[2][1], invMatrix[2][2], invMatrix[2][3]);
+    fprintf(stderr, "%f %f %f\n", invMatrix[3][1], invMatrix[3][2], invMatrix[3][3]);
+
+    double xVal2;
+    double yVal2;
+    double zVal2;
+
+    double xResult2;
+    double yResult2;
+
+    for(int i = 0; i < width; i++){
+      for(int j = 0; j < height; j++){
+        // vector<double> pointB;
+        // pointB.push_back(matchingFeatures[i].centerX); //x_a
+        // pointB.push_back(matchingFeatures[i].centerY); //y_a
+        // pointB.push_back(1); //z_a
+
+        xVal2 = 0.0;
+        yVal2 = 0.0;
+        zVal2 = 0.0;
+
+        xVal2 = invMatrix[1][1]*i + invMatrix[1][2]*j + invMatrix[1][3]*1;
+        yVal2 = invMatrix[2][1]*i + invMatrix[2][2]*j + invMatrix[2][3]*1;
+        zVal2 = invMatrix[3][1]*i + invMatrix[3][2]*j + invMatrix[3][3]*1;
+
+        xResult2 = xVal2/zVal2;
+        yResult2 = yVal2/zVal2;
+
+        fprintf(stderr, "Result Point <%f, %f>\n", xResult2, yResult2);
+        // int xround = (int) xResult;
+        // int yround = (int) yResult;
+
+        fprintf(stderr, "Actual Point: <%d, %d>\n", i, j );
+        //Pixel(xResult, yResult) = Pixel(pointB[0], pointB[1]);
+        //line(i, xResult, j, yResult, Pixel(xResult, yResult).Red(), Pixel(xResult, yResult).Green(), Pixel(xResult, yResult).Blue());
+      }
+
+    }
+
 
 
 
 	fprintf(stderr, "fit other image using a homography and blend imageB over imageA\n");
 	return;
+}
+
+void R2Image::
+warp(vector<int> goodFeatures, vector<double> bestHMatrix)
+{
+  /*
+    WARP IMAGE HW10
+    -Calculate Hmatrix using good points
+    -Can use inverse of Hmatrix
+  */
+
+  // int goodIndex1 = goodFeatures[rand()%goodFeatures.size()];
+  // int goodIndex2 = goodFeatures[rand()%goodFeatures.size()];
+  // int goodIndex3 = goodFeatures[rand()%goodFeatures.size()];
+  // int goodIndex4 = goodFeatures[rand()%goodFeatures.size()];
+  //
+  // Feature r1;
+  // Feature r2;
+  // Feature r3;
+  // Feature r4;
+  //
+  // Feature m1;
+  // Feature m2;
+  // Feature m3;
+  // Feature m4;
+  //
+  // vector<R2Point> startPoints;
+  // vector<R2Point> endPoints;
+  //
+  // r1 = featuresVec[goodIndex1];
+  // r2 = featuresVec[goodIndex2];
+  // r3 = featuresVec[goodIndex3];
+  // r4 = featuresVec[goodIndex4];
+  //
+  // m1 = matchingFeatures[goodIndex1];
+  // m2 = matchingFeatures[goodIndex2];
+  // m3 = matchingFeatures[goodIndex3];
+  // m4 = matchingFeatures[goodIndex4];
+  //
+  // R2Point p1(r1.centerX,r1.centerY);
+  // R2Point p2(r2.centerX,r2.centerY);
+  // R2Point p3(r3.centerX,r3.centerY);
+  // R2Point p4(r4.centerX,r4.centerY);
+  //
+  // R2Point p5(m1.centerX,m1.centerY);
+  // R2Point p6(m2.centerX,m2.centerY);
+  // R2Point p7(m3.centerX,m3.centerY);
+  // R2Point p8(m4.centerX,m4.centerY);
+  //
+  // startPoints.push_back(p1);
+  // startPoints.push_back(p2);
+  // startPoints.push_back(p3);
+  // startPoints.push_back(p4);
+  //
+  // endPoints.push_back(p5);
+  // endPoints.push_back(p6);
+  // endPoints.push_back(p7);
+  // endPoints.push_back(p8);
+  //
+  // vector<double> hOrig = svdTest(startPoints, endPoints);
+  // fprintf(stderr, "\nH Matrix:\n");
+  // fprintf(stderr, "%f %f %f\n", hOrig[0], hOrig[1], hOrig[2]);
+  // fprintf(stderr, "%f %f %f\n", hOrig[3], hOrig[4], hOrig[5]);
+  // fprintf(stderr, "%f %f %f\n", hOrig[6], hOrig[7], hOrig[8]);
+  //
+  // double** bestMatrix = dmatrix(1,3,1,3);
+  // for(int i = 1; i < 4; i++){
+  //   bestMatrix[1][i] = hOrig[i-0];
+  //   bestMatrix[2][i] = hOrig[i+2];
+  //   bestMatrix[3][i] = hOrig[i+5];
+  // }
+  //
+  // // fprintf(stderr, "\nH Matrix:\n");
+  // // fprintf(stderr, "%f %f %f\n", bestHMatrix[0], bestHMatrix[1], bestHMatrix[2]);
+  // // fprintf(stderr, "%f %f %f\n", bestHMatrix[3], bestHMatrix[4], bestHMatrix[5]);
+  // // fprintf(stderr, "%f %f %f\n", bestHMatrix[6], bestHMatrix[7], bestHMatrix[8]);
+  //
+  // double det =
+  // bestMatrix[1,1]*(bestMatrix[2,2]*bestMatrix[3,3] - bestMatrix[3,2]*bestMatrix[2][3])
+  // - bestMatrix[1][2]*(bestMatrix[2][1]*bestMatrix[3][3] - bestMatrix[2][3]*bestMatrix[3][1]
+  // + bestMatrix[1][3]*(bestMatrix[2][1]*bestMatrix[3][2] - bestMatrix[2][2]*bestMatrix[3][1]));
+  //
+  // double invdet = 1/det;
+  //
+  // double** invMatrix = dmatrix(1,3,1,3);
+  // invMatrix[1][1] = (bestMatrix[2][2]*bestMatrix[3][3] - bestMatrix[3][2]*bestMatrix[2][3])*invdet;
+  // invMatrix[1][1] = (bestMatrix[1][3]*bestMatrix[3][2] - bestMatrix[1][2]*bestMatrix[3][3])*invdet;
+  // invMatrix[1][3] = (bestMatrix[1][2]*bestMatrix[2][3] - bestMatrix[1][3]*bestMatrix[2][2])*invdet;
+  //
+  // invMatrix[2][1] = (bestMatrix[2][3]*bestMatrix[3][1] - bestMatrix[2][1]*bestMatrix[3][3])*invdet;
+  // invMatrix[2][1] = (bestMatrix[1][1]*bestMatrix[3][3] - bestMatrix[1][3]*bestMatrix[3][1])*invdet;
+  // invMatrix[2][3] = (bestMatrix[2][1]*bestMatrix[1][3] - bestMatrix[1][1]*bestMatrix[2][3])*invdet;
+  //
+  // invMatrix[3][1] = (bestMatrix[2][1]*bestMatrix[3][2] - bestMatrix[3][1]*bestMatrix[2][2])*invdet;
+  // invMatrix[3][1] = (bestMatrix[3][1]*bestMatrix[1][2] - bestMatrix[1][1]*bestMatrix[3][2])*invdet;
+  // invMatrix[3][3] = (bestMatrix[1][1]*bestMatrix[2][2] - bestMatrix[2][1]*bestMatrix[1][2])*invdet;
+  //
+  // fprintf(stderr, "\nH Inverses:\n");
+  // fprintf(stderr, "%f %f %f\n", invMatrix[1][1], invMatrix[1][2], invMatrix[1][3]);
+  // fprintf(stderr, "%f %f %f\n", invMatrix[2][1], invMatrix[2][2], invMatrix[2][3]);
+  // fprintf(stderr, "%f %f %f\n", invMatrix[3][1], invMatrix[3][2], invMatrix[3][3]);
+  //
+  // double xVal;
+  // double yVal;
+  // double zVal;
+  //
+  // double xResult;
+  // double yResult;
+  //
+  // for(int i = 0; i < width; i++){
+  //   for(int j = 0; j < height; j++){
+  //     // vector<double> pointB;
+  //     // pointB.push_back(matchingFeatures[i].centerX); //x_a
+  //     // pointB.push_back(matchingFeatures[i].centerY); //y_a
+  //     // pointB.push_back(1); //z_a
+  //
+  //     xVal = 0.0;
+  //     yVal = 0.0;
+  //     zVal = 0.0;
+  //
+  //     xVal = invMatrix[1][1]*i + invMatrix[1][2]*j + invMatrix[1][3]*1;
+  //     yVal = invMatrix[2][1]*i + invMatrix[2][2]*j + invMatrix[2][3]*1;
+  //     zVal = invMatrix[3][1]*i + invMatrix[3][2]*j + invMatrix[3][3]*1;
+  //
+  //     xResult = xVal/zVal;
+  //     yResult = yVal/zVal;
+  //
+  //     fprintf(stderr, "Result Point <%f, %f>\n", xResult, yResult);
+  //     int xround = (int) xResult;
+  //     int yround = (int) yResult;
+  //
+  //     fprintf(stderr, "Actual Point: <%d, %d>\n", i, j );
+  //     //Pixel(xResult, yResult) = Pixel(pointB[0], pointB[1]);
+  //
+  //     if((xResult > width || xResult < width) || (yResult > height || yResult < height)){
+  //       xResult = i;
+  //       xResult = j;
+  //     }
+  //
+  //
+  //
+  //     line(i, xResult, j, yResult, Pixel(xResult, yResult).Red(), Pixel(xResult, yResult).Green(), Pixel(xResult, yResult).Blue());
+  //   }
+  //
+  // }
+  //
+
+
+
 }
 
 ////////////////////////////////////////////////////////////////////////

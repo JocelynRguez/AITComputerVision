@@ -110,7 +110,7 @@ class R2Image {
   vector<Feature> filterHarris(vector<Feature> values);
   void line(int x0, int x1, int y0, int y1, float r, float g, float b);
   void findMatchingFeatures(R2Image* otherImage);
-
+  void warp(vector<int> goodFeatures, vector<double> bestHMatrix);
 
   // Linear filtering operations
   void SobelX();
