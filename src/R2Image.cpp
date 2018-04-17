@@ -133,9 +133,11 @@ svdTest(vector<R2Point> startPoints, vector<R2Point> endPoints)
 //change to take in 4 points....or better, 2 vectors of points for features from image A and image B
 {
 
-  double** linEquations = dmatrix(1,8,1,9);
 
-  for(int i = 0; i < 4; i++){
+  int N = startPoints.size();
+  double** linEquations = dmatrix(1,2*N,1,9);
+
+  for(int i = 0; i < N; i++){
       //first row
       linEquations[2*i +1][1] = 0.0;
     	linEquations[2*i +1][2] = 0.0;
@@ -160,33 +162,33 @@ svdTest(vector<R2Point> startPoints, vector<R2Point> endPoints)
 
   }
 
-  fprintf(stderr, "Matrix for A points: \n");
-  for(int k = 1; k < 9; k++){
-    fprintf(stderr, "%f %f %f %f %f %f %f %f %f\n", linEquations[k][1], linEquations[k][2], linEquations[k][3], linEquations[k][4], linEquations[k][5], linEquations[k][6], linEquations[k][7], linEquations[k][8], linEquations[k][9]);
+  // fprintf(stderr, "Matrix for A points: \n");
+  // for(int k = 1; k < 9; k++){
+  //   fprintf(stderr, "%f %f %f %f %f %f %f %f %f\n", linEquations[k][1], linEquations[k][2], linEquations[k][3], linEquations[k][4], linEquations[k][5], linEquations[k][6], linEquations[k][7], linEquations[k][8], linEquations[k][9]);
+  //
+  // }
 
-  }
 
-
-	printf("\n Four points: \n");
-	printf("Point #1: %f,%f\n",startPoints[0][0],startPoints[0][1]);
-	printf("Point #2: %f,%f\n",startPoints[1][0],startPoints[1][1]);
-	printf("Point #3: %f,%f\n",startPoints[2][0],startPoints[2][1]);
-	printf("Point #4: %f,%f\n",startPoints[3][0],startPoints[3][1]);
-
-  printf("\n Other points: \n");
-	printf("Point #1: %f,%f\n",endPoints[0][0],endPoints[0][1]);
-	printf("Point #2: %f,%f\n",endPoints[1][0],endPoints[1][1]);
-	printf("Point #3: %f,%f\n",endPoints[2][0],endPoints[2][1]);
-	printf("Point #4: %f,%f\n",endPoints[3][0],endPoints[3][1]);
+	// printf("\n Four points: \n");
+	// printf("Point #1: %f,%f\n",startPoints[0][0],startPoints[0][1]);
+	// printf("Point #2: %f,%f\n",startPoints[1][0],startPoints[1][1]);
+	// printf("Point #3: %f,%f\n",startPoints[2][0],startPoints[2][1]);
+	// printf("Point #4: %f,%f\n",startPoints[3][0],startPoints[3][1]);
+  //
+  // printf("\n Other points: \n");
+	// printf("Point #1: %f,%f\n",endPoints[0][0],endPoints[0][1]);
+	// printf("Point #2: %f,%f\n",endPoints[1][0],endPoints[1][1]);
+	// printf("Point #3: %f,%f\n",endPoints[2][0],endPoints[2][1]);
+	// printf("Point #4: %f,%f\n",endPoints[3][0],endPoints[3][1]);
 
 	// compute the SVD
   double singularValues[10]; // 1..9
 
   double** nullspaceMatrix = dmatrix(1,9,1,9);
-	svdcmp(linEquations, 8, 9, singularValues, nullspaceMatrix);
+	svdcmp(linEquations, 2*N, 9, singularValues, nullspaceMatrix);
 
 	// get the result
-	fprintf(stderr, "\nSingular values A: %f, %f, %f, %f, %f, %f, %f, %f, %f\n", singularValues[1],singularValues[2],singularValues[3],singularValues[4],singularValues[5],singularValues[6], singularValues[7], singularValues[8], singularValues[9]);
+	// fprintf(stderr, "\nSingular values A: %f, %f, %f, %f, %f, %f, %f, %f, %f\n", singularValues[1],singularValues[2],singularValues[3],singularValues[4],singularValues[5],singularValues[6], singularValues[7], singularValues[8], singularValues[9]);
 
 	// find the smallest singular value:
 	int smallestIndex = 1;
@@ -195,7 +197,7 @@ svdTest(vector<R2Point> startPoints, vector<R2Point> endPoints)
   fprintf(stderr, "smallestIndexA %d\n", smallestIndex);
 
   // solution is the nullspace of the matrix, which is the column in V corresponding to the smallest singular value (which should be 0)
-  fprintf(stderr, "H Values: %f, %f, %f, %f, %f, %f, %f, %f, %f\n\n",nullspaceMatrix[1][smallestIndex],nullspaceMatrix[2][smallestIndex],nullspaceMatrix[3][smallestIndex],nullspaceMatrix[4][smallestIndex],nullspaceMatrix[5][smallestIndex],nullspaceMatrix[6][smallestIndex],nullspaceMatrix[7][smallestIndex],nullspaceMatrix[8][smallestIndex],nullspaceMatrix[9][smallestIndex]);
+  // fprintf(stderr, "H Values: %f, %f, %f, %f, %f, %f, %f, %f, %f\n\n",nullspaceMatrix[1][smallestIndex],nullspaceMatrix[2][smallestIndex],nullspaceMatrix[3][smallestIndex],nullspaceMatrix[4][smallestIndex],nullspaceMatrix[5][smallestIndex],nullspaceMatrix[6][smallestIndex],nullspaceMatrix[7][smallestIndex],nullspaceMatrix[8][smallestIndex],nullspaceMatrix[9][smallestIndex]);
 
 
   fprintf(stderr, "H Matrix for A points: \n");
@@ -836,6 +838,9 @@ blendOtherImageTranslated(R2Image * otherImage)
 
   double sum1;
   double sum2;
+  // double colorsum;
+  //
+  // R2Pixel* tempPixel = new R2Pixel();
 
 
 
@@ -865,10 +870,14 @@ blendOtherImageTranslated(R2Image * otherImage)
            for(int i = -window; i <= window; i++){
              for(int j = -window; j <= window ; j++){
 
+                // tempPixel = thirdImage.Pixel(currX+i, currY+j) - secondImage.Pixel(x+i, y+j);
+                // colorsum = tempPixel.Red() + tempPixel.Green() + tempPixel.Blue();
+
                 sum1 = thirdImage.Pixel(currX+i, currY+j).Red()+thirdImage.Pixel(currX+i, currY+j).Green() + thirdImage.Pixel(currX+i, currY+j).Blue();
+                //sum1 = thirdImage.Pixel(currX+i, currY+j).Luminance();
 
-                 sum2 = secondImage.Pixel(x+i, y+j).Red() +secondImage.Pixel(x+i, y+j).Green() + secondImage.Pixel(x+i, y+j).Blue();
-
+                sum2 = secondImage.Pixel(x+i, y+j).Red() +secondImage.Pixel(x+i, y+j).Green() + secondImage.Pixel(x+i, y+j).Blue();
+                //sum2 = secondImage.Pixel(x+i, y+j).Luminance();
                  //compute ssd
                  diff = sum1 - sum2;
                  ssd += (diff*diff);
@@ -1019,6 +1028,7 @@ findMatchingFeatures(R2Image* otherImage){
 
   double sum1;
   double sum2;
+  double otherSum = 0.0;
 
 
 
@@ -1034,22 +1044,26 @@ findMatchingFeatures(R2Image* otherImage){
     finalY = currY;
     finalSSD = 5000000000;
 
+
     //go through %20 of image size (search area)
     for(int x = (int) currX-(width*0.2); x <= (int) currX+(width*0.2); x++) {
         for(int y = (int) currY-(height*0.2); y <= (int) currY+(height*0.2); y++){
 
          ssd = 0.0;
+         //R2Pixel *otherPixel = new R2Pixel();
          if(x >= 0 && x < width && y >=0 && y < height){
-
+           R2Pixel *otherPixel = new R2Pixel();
            //go through window to compare ssd from orig and other image
            for(int i = -window; i <= window; i++){
              for(int j = -window; j <= window ; j++){
 
                  sum1 = thirdImage.Pixel(currX+i, currY+j).Luminance();
-
                  sum2 = secondImage.Pixel(x+i, y+j).Luminance();
-
+                 *otherPixel += (secondImage->Pixel(x+i, y+j) - thirdImage->Pixel(currX+1, currY+j) * secondImage->Pixel(x+i, y+j) - thirdImage->Pixel(currX+1, currY+j));
                  //compute ssd
+
+                 //otherSum += pow(otherPixel->Red(),2) + pow(otherPixel->Green(),2) + pow(otherPixel->Blue(),2);
+
                  diff = sum1 - sum2;
                  ssd += (diff*diff);
 
@@ -1081,12 +1095,14 @@ blendOtherImageHomography(R2Image * otherImage)
 {
 
   int count = 0;
-  double threshhold = 6.0;
+  double threshhold = 14.0;
 
   vector<int> badFeatures;
   vector<int> finalBadFeatures;
-  vector<int> goodFeatures;
-  vector<int> finalGoodFeatures;
+  vector<R2Point> goodFeaturesStart;
+  vector<R2Point> goodFeaturesEnd;
+  vector<R2Point> finalGoodFeaturesStart;
+  vector<R2Point> finalGoodFeaturesEnd;
 
 
   R2Image firstImage(*this);
@@ -1165,19 +1181,8 @@ blendOtherImageHomography(R2Image * otherImage)
     endPoints.push_back(p8);
 
     vector<double> hValues = svdTest(startPoints, endPoints);
-    //double** Hmatrix = result.Hmatrix;
-    //double* hValues = result.hValues;
-    //double** A = dmatrix(1,2,1,9);
 
-
-    // fprintf(stderr, "hValues: %f %f %f %f %f %f %f %f %f \n", hValues[0], hValues[1], hValues[2],
-    //  hValues[3], hValues[4], hValues[5],
-    // hValues[6], hValues[7], hValues[8] );
-
-
-    for(int i = 0; i < 150; i++){
-      // R2Point origPoint(featuresVec[i].centerX, featuresVec[i].centerY);
-      // R2Point matchPoint(matchingFeatures[i].centerX, matchingFeatures[i].centerY);
+    for(int i = 0; i < matchingFeatures.size(); i++){
       vector<double> pointA;
       pointA.push_back(featuresVec[i].centerX); //x_a
       pointA.push_back(featuresVec[i].centerY); //y_a
@@ -1210,7 +1215,8 @@ blendOtherImageHomography(R2Image * otherImage)
       if(computation < threshhold){
         //fprintf(stderr, "%s\n", );
         inliers++;
-        goodFeatures.push_back(i);
+        goodFeaturesStart.push_back(R2Point(pointA[0], pointA[1]));
+        goodFeaturesEnd.push_back(R2Point(pointB[0], pointB[1]));
       } else {
         badFeatures.push_back(i);
       }
@@ -1222,10 +1228,15 @@ blendOtherImageHomography(R2Image * otherImage)
 
     if(inliers > maxInliers){
       maxInliers = inliers;
-      finalGoodFeatures = goodFeatures;
+      finalGoodFeaturesStart = goodFeaturesStart;
+      finalGoodFeaturesEnd = goodFeaturesEnd;
       finalBadFeatures = badFeatures;
       bestHMatrix = hValues;
       fprintf(stderr, "\nMaxInliers: %d\n", maxInliers );
+    }
+
+    for(int k = 0; k < matchingFeatures.size(); k++){
+      //multiply with optimal & count inliers
     }
 
 
@@ -1233,123 +1244,104 @@ blendOtherImageHomography(R2Image * otherImage)
     count++;
     startPoints.clear();
     endPoints.clear();
-    goodFeatures.clear();
+    goodFeaturesStart.clear();
+    goodFeaturesEnd.clear();
     badFeatures.clear();
   }
 
-  fprintf(stderr, "final maxInliers: %d Vector size: %lu\n", maxInliers, finalGoodFeatures.size() );
+  fprintf(stderr, "final maxInliers: %d Vector size: %lu %lu\n", maxInliers, finalGoodFeaturesStart.size(), finalGoodFeaturesEnd.size());
 
-  for(int k = 0; k < finalGoodFeatures.size(); k++){
-    int startX = featuresVec[finalGoodFeatures[k]].centerX;
-    int startY = featuresVec[finalGoodFeatures[k]].centerY;
-    int stopX = matchingFeatures[finalGoodFeatures[k]].centerX;
-    int stopY = matchingFeatures[finalGoodFeatures[k]].centerY;
+  vector<double> best = svdTest(finalGoodFeaturesStart, finalGoodFeaturesEnd);
 
-    line(startX, stopX, startY, stopY, 0, 1, 0);
-  }
+  fprintf(stderr, "\n\nBest H Matrix:\n");
+  fprintf(stderr, "%f %f %f\n", best[0], best[1], best[2]);
+  fprintf(stderr, "%f %f %f\n", best[3], best[4], best[5]);
+  fprintf(stderr, "%f %f %f\n", best[6], best[7], best[8]);
 
-  for(int j = 0; j < finalBadFeatures.size(); j++){
-    int startX = featuresVec[finalBadFeatures[j]].centerX;
-    int startY = featuresVec[finalBadFeatures[j]].centerY;
-    int stopX = matchingFeatures[finalBadFeatures[j]].centerX;
-    int stopY = matchingFeatures[finalBadFeatures[j]].centerY;
 
-    line(startX, stopX, startY, stopY, 1, 0, 0);
-  }
 
-	// find at least 100 features on this image, and another 100 on the "otherImage". Based on these,
-	// compute the matching homography, and blend the transformed "otherImage" into this image with a 50% opacity.
-  // warp(finalGoodFeatures, bestHMatrix);
-    int goodIndex1 = finalGoodFeatures[rand()%goodFeatures.size()];
-    int goodIndex2 = finalGoodFeatures[rand()%goodFeatures.size()];
-    int goodIndex3 = finalGoodFeatures[rand()%goodFeatures.size()];
-    int goodIndex4 = finalGoodFeatures[rand()%goodFeatures.size()];
+  // for(int k = 0; k < finalGoodFeatures.size(); k++){
+  //   int startX = featuresVec[finalGoodFeatures[k]].centerX;
+  //   int startY = featuresVec[finalGoodFeatures[k]].centerY;
+  //   int stopX = matchingFeatures[finalGoodFeatures[k]].centerX;
+  //   int stopY = matchingFeatures[finalGoodFeatures[k]].centerY;
+  //
+  //   line(startX, stopX, startY, stopY, 0, 1, 0);
+  // }
 
-    Feature rand1;
-    Feature rand2;
-    Feature rand3;
-    Feature rand4;
+  // for(int j = 0; j < finalBadFeatures.size(); j++){
+  //   int startX = featuresVec[finalBadFeatures[j]].centerX;
+  //   int startY = featuresVec[finalBadFeatures[j]].centerY;
+  //   int stopX = matchingFeatures[finalBadFeatures[j]].centerX;
+  //   int stopY = matchingFeatures[finalBadFeatures[j]].centerY;
+  //
+  //   line(startX, stopX, startY, stopY, 1, 0, 0);
+  // }
 
-    Feature match1;
-    Feature match2;
-    Feature match3;
-    Feature match4;
+  // Best H Matrix:
+  // -0.005324 0.001369 -0.845843
+  // -0.001127 -0.004889 0.533353
+  // -0.000000 0.000000 -0.005295
 
-    vector<R2Point> stPoints;
-    vector<R2Point> edPoints;
 
-    rand1 = featuresVec[goodIndex1];
-    rand2 = featuresVec[goodIndex2];
-    rand3 = featuresVec[goodIndex3];
-    rand4 = featuresVec[goodIndex4];
 
-    match1 = matchingFeatures[goodIndex1];
-    match2 = matchingFeatures[goodIndex2];
-    match3 = matchingFeatures[goodIndex3];
-    match4 = matchingFeatures[goodIndex4];
 
-    R2Point p9(rand1.centerX,rand1.centerY);
-    R2Point p10(rand2.centerX,rand2.centerY);
-    R2Point p11(rand3.centerX,rand3.centerY);
-    R2Point p12(rand4.centerX,rand4.centerY);
-
-    R2Point p13(match1.centerX,match1.centerY);
-    R2Point p14(match2.centerX,match2.centerY);
-    R2Point p15(match3.centerX,match3.centerY);
-    R2Point p16(match4.centerX,match4.centerY);
-
-    stPoints.push_back(p9);
-    stPoints.push_back(p10);
-    stPoints.push_back(p11);
-    stPoints.push_back(p12);
-
-    edPoints.push_back(p13);
-    edPoints.push_back(p14);
-    edPoints.push_back(p15);
-    edPoints.push_back(p16);
-
-    vector<double> hOrig = svdTest(stPoints, edPoints);
-    fprintf(stderr, "\nH Matrix:\n");
-    fprintf(stderr, "%f %f %f\n", hOrig[0], hOrig[1], hOrig[2]);
-    fprintf(stderr, "%f %f %f\n", hOrig[3], hOrig[4], hOrig[5]);
-    fprintf(stderr, "%f %f %f\n", hOrig[6], hOrig[7], hOrig[8]);
+    R2Image warpImg(*this);
+    R2Image warpFrom(*otherImage);
 
     double** bestMatrix = dmatrix(1,3,1,3);
-    for(int i = 1; i < 4; i++){
-      bestMatrix[1][i] = hOrig[i-0];
-      bestMatrix[2][i] = hOrig[i+2];
-      bestMatrix[3][i] = hOrig[i+5];
-    }
+    bestMatrix[1][1] = best[0];
+    bestMatrix[1][2] = best[1];
+    bestMatrix[1][3] = best[2];
 
-    // fprintf(stderr, "\nH Matrix:\n");
-    // fprintf(stderr, "%f %f %f\n", bestHMatrix[0], bestHMatrix[1], bestHMatrix[2]);
-    // fprintf(stderr, "%f %f %f\n", bestHMatrix[3], bestHMatrix[4], bestHMatrix[5]);
-    // fprintf(stderr, "%f %f %f\n", bestHMatrix[6], bestHMatrix[7], bestHMatrix[8]);
+    bestMatrix[2][1] = best[3];
+    bestMatrix[2][2] = best[4];
+    bestMatrix[2][3] = best[5];
 
-    double det =
-    bestMatrix[1][1]*(bestMatrix[2][2]*bestMatrix[3][3] - bestMatrix[3][2]*bestMatrix[2][3])
-    - bestMatrix[1][2]*(bestMatrix[2][1]*bestMatrix[3][3] - bestMatrix[2][3]*bestMatrix[3][1]
-    + bestMatrix[1][3]*(bestMatrix[2][1]*bestMatrix[3][2] - bestMatrix[2][2]*bestMatrix[3][1]));
+    bestMatrix[3][1] = best[6];
+    bestMatrix[3][2] = best[7];
+    bestMatrix[3][3] = best[8];
+    // for(int i = 1; i < 4; i++){
+    //   bestMatrix[1][i] = bestHMatrix[i];
+    //   bestMatrix[2][i] = bestHMatrix[i+3];
+    //   bestMatrix[3][i] = bestHMatrix[i+6];
+    // }
 
-    double invdet = 1/det;
+    fprintf(stderr, "\nH Matrix:\n");
+    fprintf(stderr, "%f %f %f\n", bestMatrix[1][1], bestMatrix[1][2], bestMatrix[1][3]);
+    fprintf(stderr, "%f %f %f\n", bestMatrix[2][1], bestMatrix[2][2], bestMatrix[2][3]);
+    fprintf(stderr, "%f %f %f\n", bestMatrix[3][1], bestMatrix[3][2], bestMatrix[3][3]);
+    //
+    // float det =
+    // bestMatrix[1][1] * (bestMatrix[2][2]*bestMatrix[3][3] - bestMatrix[3][2] * bestMatrix[2][3])
+    // - bestMatrix[1][2] * (bestMatrix[2][1]*bestMatrix[3][3] - bestMatrix[2][3]*bestMatrix[3][1]
+    // + bestMatrix[1][3]*(bestMatrix[2][1]*bestMatrix[3][2] - bestMatrix[2][2]*bestMatrix[3][1]));
 
-    double** invMatrix = dmatrix(1,3,1,3);
-    invMatrix[1][1] = (bestMatrix[2][2]*bestMatrix[3][3] - bestMatrix[3][2]*bestMatrix[2][3])*invdet;
-    invMatrix[1][1] = (bestMatrix[1][3]*bestMatrix[3][2] - bestMatrix[1][2]*bestMatrix[3][3])*invdet;
-    invMatrix[1][3] = (bestMatrix[1][2]*bestMatrix[2][3] - bestMatrix[1][3]*bestMatrix[2][2])*invdet;
 
-    invMatrix[2][1] = (bestMatrix[2][3]*bestMatrix[3][1] - bestMatrix[2][1]*bestMatrix[3][3])*invdet;
-    invMatrix[2][1] = (bestMatrix[1][1]*bestMatrix[3][3] - bestMatrix[1][3]*bestMatrix[3][1])*invdet;
-    invMatrix[2][3] = (bestMatrix[2][1]*bestMatrix[1][3] - bestMatrix[1][1]*bestMatrix[2][3])*invdet;
+    // double** invMatrix = dmatrix(1,3,1,3);
+    // invMatrix = bestMatrix;
+    // invMatrix[1][1] = (bestMatrix[2][2]*bestMatrix[3][3] - bestMatrix[3][2]*bestMatrix[2][3])/det;
+    //
+    // invMatrix[1][2] = (bestMatrix[1][3]*bestMatrix[3][2] - bestMatrix[1][2]*bestMatrix[3][3])/det;
+    //
+    // invMatrix[1][3] = (bestMatrix[1][2]*bestMatrix[2][3] - bestMatrix[1][3]*bestMatrix[2][2])/det;
+    //
+    // invMatrix[2][1] = (bestMatrix[2][3]*bestMatrix[3][1] - bestMatrix[2][1]*bestMatrix[3][3])/det;
+    //
+    // invMatrix[2][2] = (bestMatrix[1][1]*bestMatrix[3][3] - bestMatrix[1][3]*bestMatrix[3][1])/det;
+    //
+    // invMatrix[2][3] = (bestMatrix[2][1]*bestMatrix[1][3] - bestMatrix[1][1]*bestMatrix[2][3])/det;
+    //
+    // invMatrix[3][1] = (bestMatrix[2][1]*bestMatrix[3][2] - bestMatrix[3][1]*bestMatrix[2][2])/det;
+    //
+    // invMatrix[3][2] = (bestMatrix[3][1]*bestMatrix[1][2] - bestMatrix[1][1]*bestMatrix[3][2])/det;
+    //
+    // invMatrix[3][3] = (bestMatrix[1][1]*bestMatrix[2][2] - bestMatrix[2][1]*bestMatrix[1][2])/det;
 
-    invMatrix[3][1] = (bestMatrix[2][1]*bestMatrix[3][2] - bestMatrix[3][1]*bestMatrix[2][2])*invdet;
-    invMatrix[3][1] = (bestMatrix[3][1]*bestMatrix[1][2] - bestMatrix[1][1]*bestMatrix[3][2])*invdet;
-    invMatrix[3][3] = (bestMatrix[1][1]*bestMatrix[2][2] - bestMatrix[2][1]*bestMatrix[1][2])*invdet;
-
-    fprintf(stderr, "\nH Inverses:\n");
-    fprintf(stderr, "%f %f %f\n", invMatrix[1][1], invMatrix[1][2], invMatrix[1][3]);
-    fprintf(stderr, "%f %f %f\n", invMatrix[2][1], invMatrix[2][2], invMatrix[2][3]);
-    fprintf(stderr, "%f %f %f\n", invMatrix[3][1], invMatrix[3][2], invMatrix[3][3]);
+    // fprintf(stderr, "\nH Inverses:\n");
+    // fprintf(stderr, "%f %f %f\n", invMatrix[1][1], invMatrix[1][2], invMatrix[1][3]);
+    // fprintf(stderr, "%f %f %f\n", invMatrix[2][1], invMatrix[2][2], invMatrix[2][3]);
+    // fprintf(stderr, "%f %f %f\n", invMatrix[3][1], invMatrix[3][2], invMatrix[3][3]);
 
     double xVal2;
     double yVal2;
@@ -1360,29 +1352,36 @@ blendOtherImageHomography(R2Image * otherImage)
 
     for(int i = 0; i < width; i++){
       for(int j = 0; j < height; j++){
-        // vector<double> pointB;
-        // pointB.push_back(matchingFeatures[i].centerX); //x_a
-        // pointB.push_back(matchingFeatures[i].centerY); //y_a
-        // pointB.push_back(1); //z_a
 
         xVal2 = 0.0;
         yVal2 = 0.0;
         zVal2 = 0.0;
 
-        xVal2 = invMatrix[1][1]*i + invMatrix[1][2]*j + invMatrix[1][3]*1;
-        yVal2 = invMatrix[2][1]*i + invMatrix[2][2]*j + invMatrix[2][3]*1;
-        zVal2 = invMatrix[3][1]*i + invMatrix[3][2]*j + invMatrix[3][3]*1;
+        xVal2 = bestMatrix[1][1]*i + bestMatrix[1][2]*j + bestMatrix[1][3];
+        yVal2 = bestMatrix[2][1]*i + bestMatrix[2][2]*j + bestMatrix[2][3];
+        zVal2 = bestMatrix[3][1]*i + bestMatrix[3][2]*j + bestMatrix[3][3];
 
         xResult2 = xVal2/zVal2;
         yResult2 = yVal2/zVal2;
 
-        fprintf(stderr, "Result Point <%f, %f>\n", xResult2, yResult2);
-        // int xround = (int) xResult;
-        // int yround = (int) yResult;
+        //fprintf(stderr, "Result Point <%f, %f>\n", xResult2, yResult2);
+        int xround = (int) xResult2;
+        int yround = (int) yResult2;
 
-        fprintf(stderr, "Actual Point: <%d, %d>\n", i, j );
-        //Pixel(xResult, yResult) = Pixel(pointB[0], pointB[1]);
-        //line(i, xResult, j, yResult, Pixel(xResult, yResult).Red(), Pixel(xResult, yResult).Green(), Pixel(xResult, yResult).Blue());
+        //fprintf(stderr, "Actual Point: <%d, %d>\n", i, j );
+        if((xround < 0 || xround > width) || (yround < 0 || yround > height) ){
+          fprintf(stderr, "Out of Bounds: <%d, %d>\n", xround, yround);
+          Pixel(i,j).Reset(1, 1, 1, 1);
+        } else {
+          fprintf(stderr, "IN BOUNDS: <%d, %d>\n", xround, yround);
+
+
+          double redAvg = (Pixel(i, j).Red() + warpImg.Pixel(xResult2, yResult2).Red())/2;
+          double blueAvg = (Pixel(i, j).Blue() + warpImg.Pixel(xResult2, yResult2).Blue())/2;
+          double greenAvg = (Pixel(i, j).Green() + warpImg.Pixel(xResult2, yResult2).Green())/2;
+
+          Pixel(i,j).Reset(redAvg, greenAvg, blueAvg, 1);
+        }
       }
 
     }
