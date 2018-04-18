@@ -67,6 +67,12 @@ popd
 src/imgpro input/colorA.jpg output/color_warp.jpg \
           -matchHomography input/colorB.jpg
 
+
+src/imgpro input/test_D_face01.jpg output/face_warp.jpg \
+          -matchHomography input/test_D_face02.jpg
+
+
+
 src/imgpro input/test_C_bridge01.jpg output/bridge_warp.jpg \
           -matchHomography input/test_C_bridge02.jpg
 
