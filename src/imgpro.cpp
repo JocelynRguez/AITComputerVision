@@ -290,7 +290,29 @@ main(int argc, char **argv)
       argv += 2, argc -= 2;
       image->blendOtherImageHomography(other_image);
       delete other_image;
-    }
+    } /*
+     else if (!strcmp(*argv, "-imgageprocessing")) {
+        CheckOption(*argv, argc, 2);
+        double sigma = atof(argv[1]);
+        argv += 2, argc -= 2;
+
+        std::string firstfilename = "/Users/jocleynrodriguez/test/000.jpg";
+        R2Image *first_image = new R2Image(firstfilename);
+        first_image->FirstFrameProcessing();
+
+        for(int i = 1; i < 300; i++){
+          std::string currentfilename = "/Users/jocleynrodriguez/test/" + %07d".jpg";
+
+          std::string currentfilenameoutput = "/Users/jocelynrodriguez/test/output/"+%07d+".jpg";
+
+          R2Image *current_image = new R2Image(currentfilename);
+          current_image->brightness(i/100);
+          current_image->Write(currentfilenameoutput)
+
+          delete(current_image);
+        }
+
+      } */
     else {
       // Unrecognized program argument
       fprintf(stderr, "image: invalid option: %s\n", *argv);
