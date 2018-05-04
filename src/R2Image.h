@@ -128,6 +128,9 @@ class R2Image {
   void blendOtherImageTranslated(R2Image * otherImage);
   void blendOtherImageHomography(R2Image * otherImage);
 
+  //image processing
+  void imageProcessing(R2Image *firstImage);
+
   // File reading/writing
   int Read(const char *filename);
   int ReadBMP(const char *filename);

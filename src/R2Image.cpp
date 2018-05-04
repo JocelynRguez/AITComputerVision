@@ -640,19 +640,14 @@ Harris(double sigma)
       green = tempImg.Pixel(x,y).Green();
       blue = tempImg.Pixel(x,y).Blue();
 
-
       tempImg.Pixel(x,y).SetRed(red + 0.5);
       tempImg.Pixel(x,y).SetBlue(blue + 0.5);
       tempImg.Pixel(x,y).SetGreen(green + 0.5);
 
       tempImg.Pixel(x,y).Clamp();
-       //fprintf(stderr, "R: (%f) G:(%f) B:(%f) sum:(%f)\n", Pixel(x,y).Red(), Pixel(x,y).Blue(), Pixel(x,y).Green(), rgbsum);
 
-          //fprintf(stderr, "Sum (%f), count(%d)\n", rgbsum, count);
-          //fprintf(stderr, "R: (%f) G:(%f) B:(%f) Luminance (%f) count(%d) sum(%f)\n", Pixel(x,y).Re/d(), Pixel(x,y).Blue(), Pixel(x,y).Green(), Pixel(x,y).Luminance(), count, rgbsum);
-
-          Feature temp(x, y, tempImg.Pixel(x,y));
-          values.push_back(temp);
+      Feature temp(x, y, tempImg.Pixel(x,y));
+      values.push_back(temp);
 
     }
   }
@@ -665,7 +660,6 @@ Harris(double sigma)
     bool empty;
     int currX;
     int currY;
-  //  R2Pixel *redPixel(1, 0, 0, 0);
 
     while(count < 150){
       empty = true;

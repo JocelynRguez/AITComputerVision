@@ -145,18 +145,18 @@ main(int argc, char **argv)
    if (!strcmp(argv[i], "-video")) {
 		printf("Video processing started\n");
 
-		char inputName[100] = "../../videoinput/input%07d.jpg";
-		char outputName[100] = "../../videooutput/output%07d.jpg";
+		char inputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videoTestInput/testEx/%07d.jpg";
+		char outputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videoTestOutput/testExRes/result%07d.jpg";
 
 		R2Image *mainImage = new R2Image();
-		char currentFilename[100];
-		char currentOutputFilename[100];
+		char currentFilename[150];
+		char currentOutputFilename[150];
 		if (!mainImage) {
 			fprintf(stderr, "Unable to allocate image\n");
 			exit(-1);
 		}
 		// read very first frame
-		sprintf(currentFilename, inputName, 0);
+		sprintf(currentFilename, inputName, 1);
 		if (!mainImage->Read(currentFilename)) {
 			fprintf(stderr, "Unable to read first image\n");
 			exit(-1);
@@ -167,7 +167,7 @@ main(int argc, char **argv)
 		mainImage->Blur(3.0f);
 		// here you could call mainImage->FirstFrameProcessing( );
 
-		int end = 88;
+		int end = 135;
 		for (int i = 1; i < end; i++)
 		{
 			R2Image *currentImage = new R2Image();
