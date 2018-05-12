@@ -145,8 +145,8 @@ main(int argc, char **argv)
    if (!strcmp(argv[i], "-video")) {
 		printf("Video processing started\n");
 
-		char inputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videoTestInput/testEx/%07d.jpg";
-		char outputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videoTestOutput/testExRes/result%07d.jpg";
+		char inputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videoinput/givenTest/input%07d.jpg";
+		char outputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videooutput/givenTestResult/output%07d.jpg";
 
 		R2Image *mainImage = new R2Image();
 		char currentFilename[150];
@@ -157,18 +157,31 @@ main(int argc, char **argv)
 		}
 		// read very first frame
 		sprintf(currentFilename, inputName, 1);
+    sprintf(currentOutputFilename, outputName, 1);
+
 		if (!mainImage->Read(currentFilename)) {
 			fprintf(stderr, "Unable to read first image\n");
 			exit(-1);
 		}
 
+
+
+
 		// =============== VIDEO PROCESSING ===============
 
-		mainImage->Blur(3.0f);
+		// mainImage->Blur(3.0f);
 		// here you could call mainImage->FirstFrameProcessing( );
+    mainImage->FirstFrameProcessing();
 
-		int end = 135;
-		for (int i = 1; i < end; i++)
+    //write back to image
+    if (!mainImage->Write(currentOutputFilename)) {
+      fprintf(stderr, "Unable to write %s\n", currentOutputFilename);
+      exit(-1);
+    }
+
+
+		int end = 88;
+		for (int i = 2; i < end; i++)
 		{
 			R2Image *currentImage = new R2Image();
 			if (!currentImage) {
@@ -185,11 +198,14 @@ main(int argc, char **argv)
 				exit(-1);
 			}
 
-			currentImage->Brighten((float)i/(float)end);
+			//currentImage->Brighten((float)i/(float)end);
 			// here you could call
 			//
-			// mainImage->FrameProcessing( currentImage );
+			mainImage->FrameProcessing(currentImage);
 			//
+      //currentImage->FrameProcessing(mainImage);
+
+
 			// where FrameProcessing would process the current input currentImage, as well as writing the output to currentImage
 
 			// write result to file
@@ -290,29 +306,7 @@ main(int argc, char **argv)
       argv += 2, argc -= 2;
       image->blendOtherImageHomography(other_image);
       delete other_image;
-    } /*
-     else if (!strcmp(*argv, "-imgageprocessing")) {
-        CheckOption(*argv, argc, 2);
-        double sigma = atof(argv[1]);
-        argv += 2, argc -= 2;
-
-        std::string firstfilename = "/Users/jocleynrodriguez/test/000.jpg";
-        R2Image *first_image = new R2Image(firstfilename);
-        first_image->FirstFrameProcessing();
-
-        for(int i = 1; i < 300; i++){
-          std::string currentfilename = "/Users/jocleynrodriguez/test/" + %07d".jpg";
-
-          std::string currentfilenameoutput = "/Users/jocelynrodriguez/test/output/"+%07d+".jpg";
-
-          R2Image *current_image = new R2Image(currentfilename);
-          current_image->brightness(i/100);
-          current_image->Write(currentfilenameoutput)
-
-          delete(current_image);
-        }
-
-      } */
+    }
     else {
       // Unrecognized program argument
       fprintf(stderr, "image: invalid option: %s\n", *argv);

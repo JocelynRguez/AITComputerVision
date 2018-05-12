@@ -74,6 +74,7 @@ typedef enum {
 class R2Image {
  public:
 
+
   //std::vector<Feature> features;
   // Constructors/destructor
   R2Image(void);
@@ -87,6 +88,7 @@ class R2Image {
   int NPixels(void) const;
   int Width(void) const;
   int Height(void) const;
+
 
   // Pixel access/update
   R2Pixel& Pixel(int x, int y);
@@ -109,7 +111,7 @@ class R2Image {
   //helper functions
   vector<Feature> filterHarris(vector<Feature> values);
   void line(int x0, int x1, int y0, int y1, float r, float g, float b);
-  void findMatchingFeatures(R2Image* otherImage);
+  vector<Feature> findMatchingFeatures(R2Image* otherImage);
   void warp(vector<int> goodFeatures, vector<double> bestHMatrix);
 
   // Linear filtering operations
@@ -126,10 +128,14 @@ class R2Image {
 
   // further operations
   void blendOtherImageTranslated(R2Image * otherImage);
-  void blendOtherImageHomography(R2Image * otherImage);
+  vector<Feature> blendOtherImageHomography(R2Image * otherImage);
 
   //image processing
   void imageProcessing(R2Image *firstImage);
+
+  //video processing
+  void FirstFrameProcessing();
+  void FrameProcessing(R2Image *firstImage);
 
   // File reading/writing
   int Read(const char *filename);
@@ -151,8 +157,10 @@ class R2Image {
   int npixels;
   int width;
   int height;
-};
+  R2Image *local_firstImage;
+  R2Image *local_latestImage;
 
+};
 
 
 // Inline functions
