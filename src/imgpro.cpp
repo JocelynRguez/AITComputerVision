@@ -145,8 +145,8 @@ main(int argc, char **argv)
    if (!strcmp(argv[i], "-video")) {
 		printf("Video processing started\n");
 
-		char inputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videoinput/stillTest/input%07d.jpg";
-		char outputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videooutput/stillTestResult/output%07d.jpg";
+		char inputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videoinput/givenTest/input%07d.jpg";
+		char outputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videooutput/givenTestResult/output%07d.jpg";
 
 		R2Image *mainImage = new R2Image();
 		char currentFilename[150];
@@ -160,8 +160,8 @@ main(int argc, char **argv)
 			exit(-1);
 		}
 		// read very first frame
-		sprintf(currentFilename, inputName, 1);
-    sprintf(currentOutputFilename, outputName, 1);
+		sprintf(currentFilename, inputName, 0);
+    sprintf(currentOutputFilename, outputName, 0);
 
 		if (!mainImage->Read(currentFilename)) {
 			fprintf(stderr, "Unable to read first image\n");
@@ -184,8 +184,8 @@ main(int argc, char **argv)
     }
 
 
-		int end = 126;
-		for (int i = 1; i < end-1; i++)
+		int end = 88;
+		for (int i = 0; i < end-1; i++)
 		{
 			R2Image *currentImage = new R2Image();
 			if (!currentImage) {
@@ -211,7 +211,7 @@ main(int argc, char **argv)
 			}
 
       printf("Processing file %s\n", nextFilename);
-      if (!currentImage->Read(currentFilename)) {
+      if (!nextImage->Read(nextFilename)) {
         fprintf(stderr, "Unable to read image %d\n", i);
         exit(-1);
       }
@@ -219,7 +219,7 @@ main(int argc, char **argv)
 			//currentImage->Brighten((float)i/(float)end);
 			// here you could call
 			//
-			mainImage->FrameProcessing(currentImage, nextImage);
+			mainImage->FrameProcessing(currentImage, nextImage, i);
 			//
       //currentImage->FrameProcessing(mainImage);
 
@@ -227,11 +227,12 @@ main(int argc, char **argv)
 			// where FrameProcessing would process the current input currentImage, as well as writing the output to currentImage
 
 			// write result to file
-			if (!currentImage->Write(currentOutputFilename)) {
-				fprintf(stderr, "Unable to write %s\n", currentOutputFilename);
+			if (!nextImage->Write(nextOutputFilename)) {
+				fprintf(stderr, "Unable to write %s\n", nextOutputFilename);
 				exit(-1);
 			}
 			delete currentImage;
+      delete nextImage;
 		}
 		delete mainImage;
 		// Return success

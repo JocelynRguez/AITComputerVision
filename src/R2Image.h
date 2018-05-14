@@ -111,7 +111,7 @@ class R2Image {
   //helper functions
   vector<Feature> filterHarris(vector<Feature> values);
   void line(int x0, int x1, int y0, int y1, float r, float g, float b);
-  vector<Feature> findMatchingFeatures(R2Image* otherImage);
+  vector<Feature> findMatchingFeatures(R2Image* prevImage, R2Image *currImage);
   void warp(vector<int> goodFeatures, vector<double> bestHMatrix);
 
   // Linear filtering operations
@@ -135,7 +135,7 @@ class R2Image {
 
   //video processing
   void FirstFrameProcessing();
-  void FrameProcessing(R2Image *prevImage, R2Image *currentImage);
+  void FrameProcessing(R2Image *prevImage, R2Image *currentImage, int i);
 
   // File reading/writing
   int Read(const char *filename);

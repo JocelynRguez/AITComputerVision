@@ -1011,13 +1011,13 @@ vector<Feature> matchingFeatures;
 vector<Feature> prevImgFeatures;
 
 vector<Feature> R2Image::
-findMatchingFeatures(R2Image* otherImage){
+findMatchingFeatures(R2Image* prevImage, R2Image *currImage){
 
   matchingFeatures.clear();
 
   int window = 5;
 
-  R2Image *secondImage = new R2Image(*otherImage);
+  R2Image *secondImage = new R2Image(*currImage);
   R2Image *thirdImage = new R2Image(*this);
 
   int currX;
@@ -1097,7 +1097,7 @@ findMatchingFeatures(R2Image* otherImage){
 
 
     //create line
-    otherImage->line(finalX, currX, finalY, currY, 0, 1, 0);
+    currImage->line(finalX, finalY, finalY, finalY, 0, 1, 0);
     //fprintf(stderr, "Feature #%d\n", index );
   }
     delete secondImage;
@@ -1127,7 +1127,7 @@ blendOtherImageHomography(R2Image *otherImage)
 
   //R2Image firstImage(*this);
   // firstImage.Harris(2.0);
-  matchingFeatures = findMatchingFeatures(otherImage);
+  //matchingFeatures = findMatchingFeatures(otherImage);
   fprintf(stderr, "Matching Features Size: %lu\n",  matchingFeatures.size());
 
   R2Image secondImage(*otherImage);
@@ -1472,14 +1472,19 @@ FirstFrameProcessing(){
   local_firstImage->Harris(2.0);
   prevImgFeatures = featuresVec;
 
-  prevImgFeatures = findMatchingFeatures(this);
+  prevImgFeatures = findMatchingFeatures(this, this);
 
 }
 
 void R2Image::
-FrameProcessing(R2Image *prevImage, R2Image *currImage){
-  local_latestImage = new R2Image(*currImage);
-  prevImgFeatures = local_latestImage->findMatchingFeatures(prevImage);
+FrameProcessing(R2Image *prevImage, R2Image *currImage, int i){
+  if(i == 0){
+    local_latestImage = new R2Image(*this);
+  } else{
+    local_latestImage = new R2Image(*prevImage);
+  }
+
+  prevImgFeatures = local_latestImage->findMatchingFeatures(local_latestImage, currImage);
 
 }
 
