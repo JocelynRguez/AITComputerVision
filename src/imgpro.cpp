@@ -145,12 +145,16 @@ main(int argc, char **argv)
    if (!strcmp(argv[i], "-video")) {
 		printf("Video processing started\n");
 
-		char inputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videoinput/givenTest/input%07d.jpg";
-		char outputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videooutput/givenTestResult/output%07d.jpg";
+		char inputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videoinput/stillTest/input%07d.jpg";
+		char outputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videooutput/stillTestResult/output%07d.jpg";
 
 		R2Image *mainImage = new R2Image();
 		char currentFilename[150];
 		char currentOutputFilename[150];
+
+    char nextFilename[150];
+    char nextOutputFilename[150];
+
 		if (!mainImage) {
 			fprintf(stderr, "Unable to allocate image\n");
 			exit(-1);
@@ -180,8 +184,8 @@ main(int argc, char **argv)
     }
 
 
-		int end = 88;
-		for (int i = 2; i < end; i++)
+		int end = 126;
+		for (int i = 1; i < end-1; i++)
 		{
 			R2Image *currentImage = new R2Image();
 			if (!currentImage) {
@@ -189,8 +193,16 @@ main(int argc, char **argv)
 				exit(-1);
 			}
 
+      R2Image *nextImage = new R2Image();
+      if (!nextImage) {
+        fprintf(stderr, "Unable to allocate image %d\n",i);
+        exit(-1);
+      }
+
 			sprintf(currentFilename, inputName, i);
 			sprintf(currentOutputFilename, outputName, i);
+      sprintf(nextFilename, inputName, i+1);
+      sprintf(nextOutputFilename, outputName, i+1);
 
 			printf("Processing file %s\n", currentFilename);
 			if (!currentImage->Read(currentFilename)) {
@@ -198,10 +210,16 @@ main(int argc, char **argv)
 				exit(-1);
 			}
 
+      printf("Processing file %s\n", nextFilename);
+      if (!currentImage->Read(currentFilename)) {
+        fprintf(stderr, "Unable to read image %d\n", i);
+        exit(-1);
+      }
+
 			//currentImage->Brighten((float)i/(float)end);
 			// here you could call
 			//
-			mainImage->FrameProcessing(currentImage);
+			mainImage->FrameProcessing(currentImage, nextImage);
 			//
       //currentImage->FrameProcessing(mainImage);
 

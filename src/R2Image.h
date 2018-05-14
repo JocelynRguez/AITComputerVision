@@ -135,7 +135,7 @@ class R2Image {
 
   //video processing
   void FirstFrameProcessing();
-  void FrameProcessing(R2Image *firstImage);
+  void FrameProcessing(R2Image *prevImage, R2Image *currentImage);
 
   // File reading/writing
   int Read(const char *filename);

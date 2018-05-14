@@ -660,7 +660,7 @@ Harris(double sigma)
     int currX;
     int currY;
 
-    while(count < 250){
+    while(count < 300){
       empty = true;
       currX = values[index].centerX;
       currY = values[index].centerY;
@@ -899,7 +899,7 @@ blendOtherImageTranslated(R2Image * otherImage)
     Feature tempFeature(finalX, finalY, secondImage.Pixel(finalX,finalY));
     matchingFeatures.push_back(tempFeature);
     //create line
-    otherImage->line(currX, finalX, currY, finalY, 0, 1, 0);
+    //otherImage->line(currX, finalX, currY, finalY, 0, 1, 0);
   }
 
 /*
@@ -1017,8 +1017,8 @@ findMatchingFeatures(R2Image* otherImage){
 
   int window = 5;
 
-  R2Image secondImage(*otherImage);
-  R2Image thirdImage(*this);
+  R2Image *secondImage = new R2Image(*otherImage);
+  R2Image *thirdImage = new R2Image(*this);
 
   int currX;
   int currY;
@@ -1035,22 +1035,11 @@ findMatchingFeatures(R2Image* otherImage){
   double sum2;
 
 
-
-  vector<Feature> featuresToTrack;
-  if(prevImgFeatures.size() != 0){
-    featuresToTrack = prevImgFeatures;
-    fprintf(stderr, "FEATURES TO TRACK: %lu  PREV FEATURES: %lu\n", featuresToTrack.size(), prevImgFeatures.size());
-  }else{
-    featuresToTrack = featuresVec;
-  }
-
-
-
   //go though 150 features & compute avg of window
-   for(int index = 0; index < featuresToTrack.size(); index++ ){
+   for(int index = 0; index < prevImgFeatures.size(); index++ ){
 
-    currX = featuresToTrack[index].centerX;
-    currY = featuresToTrack[index].centerY;
+    currX = prevImgFeatures[index].centerX;
+    currY = prevImgFeatures[index].centerY;
 
     // fprintf(stderr, "X: %d, Y: %d \n", currX, currY);
 
@@ -1058,8 +1047,8 @@ findMatchingFeatures(R2Image* otherImage){
     finalY = currY;
     finalSSD = 5000000000;
 
-    int swidth = 0.08*width;
-    int sheight = 0.08*height;
+    int swidth = 0.02*width;
+    int sheight = 0.02*height;
 
 
     //go through %20 of image size (search area)
@@ -1070,20 +1059,18 @@ findMatchingFeatures(R2Image* otherImage){
          //otherSum = 0.0
          //R2Pixel *otherPixel = new R2Pixel();
          if((x - window) >= 0 && (x+ window) < width && (y - window) >=0 && (y+window) < height){
-           //R2Pixel *otherPixel = new R2Pixel();
+
            //go through window to compare ssd from orig and other image
            for(int i = -window; i <= window; i++){
              for(int j = -window; j <= window ; j++){
 
-               sum1 = thirdImage.Pixel(currX+i, currY+j).Red()+thirdImage.Pixel(currX+i, currY+j).Green() + thirdImage.Pixel(currX+i, currY+j).Blue();
-               //sum1 = thirdImage.Pixel(currX+i, currY+j).Luminance();
-                //sum2 = secondImage.Pixel(x+i, y+j).Luminance();
-               sum2 = secondImage.Pixel(x+i, y+j).Red() +secondImage.Pixel(x+i, y+j).Green() + secondImage.Pixel(x+i, y+j).Blue();
-                //  *otherPixel += (secondImage.Pixel(x+i, y+j) - thirdImage.Pixel(currX+1, currY+j)) * (secondImage.Pixel(x+i, y+j) - thirdImage.Pixel(currX+1, currY+j));
-                //  //compute ssd
-                // otherSum = otherPixel->Red() + otherPixel->Blue() + otherPixel->Green();
+              sum1 = thirdImage->Pixel(currX+i, currY+j).Red()+thirdImage->Pixel(currX+i, currY+j).Green() + thirdImage->Pixel(currX+i, currY+j).Blue();
+               // sum1 = thirdImage->Pixel(currX+i, currY+j).Luminance();
+               // sum2 = secondImage->Pixel(x+i, y+j).Luminance();
+               sum2 = secondImage->Pixel(x+i, y+j).Red() +secondImage->Pixel(x+i, y+j).Green() + secondImage->Pixel(x+i, y+j).Blue();
 
-                 //
+
+                  //compute ssd
                  diff = sum2 - sum1;
                  ssd += (diff*diff);
 
@@ -1104,12 +1091,17 @@ findMatchingFeatures(R2Image* otherImage){
         }
     }
 
-    Feature tempFeature(finalX, finalY, secondImage.Pixel(finalX,finalY));
+    Feature tempFeature(finalX, finalY, secondImage->Pixel(finalX,finalY));
     matchingFeatures.push_back(tempFeature);
+
+
+
     //create line
-    otherImage->line(currX, finalX, currY, finalY, 0, 1, 0);
+    otherImage->line(finalX, currX, finalY, currY, 0, 1, 0);
     //fprintf(stderr, "Feature #%d\n", index );
   }
+    delete secondImage;
+    delete thirdImage;
 
     return matchingFeatures;
 }
@@ -1238,7 +1230,6 @@ blendOtherImageHomography(R2Image *otherImage)
 
       computation = sqrt(pow((xResult - pointB[0]),2) + pow(yResult - pointB[1],2));
 
-      // fprintf(stderr, "\nComputation of Distance: %f\n", computation );
       if(computation < threshhold){
         //fprintf(stderr, "%s\n", );
         inliers++;
@@ -1310,21 +1301,20 @@ blendOtherImageHomography(R2Image *otherImage)
 
   // vector<Feature> finalFeatures;
 
-  for(int k = 0; k < finalGoodFeatures.size(); k++){
-    fprintf(stderr, "Features %d: (%d, %d)\n", k,  featuresVec[finalGoodFeatures[k]].centerX,
-    featuresVec[finalGoodFeatures[k]].centerY);
-    int startX = featuresVec[finalGoodFeatures[k]].centerX;
-    int startY = featuresVec[finalGoodFeatures[k]].centerY;
-    int stopX = matchingFeatures[finalGoodFeatures[k]].centerX;
-    int stopY = matchingFeatures[finalGoodFeatures[k]].centerY;
+ //  for(int k = 0; k < finalGoodFeatures.size(); k++){
+ //    fprintf(stderr, "Features %d: (%d, %d)\n", k,  featuresVec[finalGoodFeatures[k]].centerX,
+ //    featuresVec[finalGoodFeatures[k]].centerY);
+ //    int startX = featuresVec[finalGoodFeatures[k]].centerX;
+ //    int startY = featuresVec[finalGoodFeatures[k]].centerY;
+ //    int stopX = matchingFeatures[finalGoodFeatures[k]].centerX;
+ //    int stopY = matchingFeatures[finalGoodFeatures[k]].centerY;
+ //
+ //    //finalFeatures.push_back(matchingFeatures[finalGoodFeatures[k]]);
+ //
+ //    otherImage->line(stopX, startX, stopY, startY, 0, 1, 0);
+ // }
 
-    //finalFeatures.push_back(matchingFeatures[finalGoodFeatures[k]]);
 
-    otherImage->line(stopX, startX, stopY, startY, 0, 1, 0);
- }
-
-/****
-BEGIN
   // for(int j = 0; j < finalBadFeatures.size(); j++){
   //   int startX = featuresVec[finalBadFeatures[j]].centerX;
   //   int startY = featuresVec[finalBadFeatures[j]].centerY;
@@ -1344,8 +1334,7 @@ BEGIN
   // 0 0 1
 
 
-
-
+/**
     R2Image *warpFrom = new R2Image(*otherImage);
 
    // double** bestMatrix = dmatrix(1,3,1,3);
@@ -1466,8 +1455,12 @@ BEGIN
 
 
   delete warpFrom;
-END OF WARP
- ***/
+
+  //prevImgFeatures.clear();
+**/
+  // prevImgFeatures.clear();
+  // prevImgFeatures = matchingFeatures;
+
 	fprintf(stderr, "fit other image using a homography and blend imageB over imageA\n");
 	return matchingFeatures;
 }
@@ -1475,16 +1468,19 @@ END OF WARP
 void R2Image::
 FirstFrameProcessing(){
   local_firstImage = new R2Image(*this);
-  local_firstImage->Harris(2.0);
   local_latestImage = new R2Image(*this);
+  local_firstImage->Harris(2.0);
+  prevImgFeatures = featuresVec;
+
   prevImgFeatures = findMatchingFeatures(this);
 
 }
 
 void R2Image::
-FrameProcessing(R2Image *otherImage){
-  prevImgFeatures = local_latestImage->findMatchingFeatures(otherImage);
-  local_latestImage = new R2Image(*otherImage);
+FrameProcessing(R2Image *prevImage, R2Image *currImage){
+  local_latestImage = new R2Image(*currImage);
+  prevImgFeatures = local_latestImage->findMatchingFeatures(prevImage);
+
 }
 
 
