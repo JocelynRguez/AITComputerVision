@@ -1018,7 +1018,7 @@ findMatchingFeatures(R2Image* prevImage, R2Image *currImage){
   int window = 5;
 
   R2Image *secondImage = new R2Image(*currImage);
-  R2Image *thirdImage = new R2Image(*this);
+  R2Image *thirdImage = new R2Image(*prevImage);
 
   int currX;
   int currY;
@@ -1097,7 +1097,7 @@ findMatchingFeatures(R2Image* prevImage, R2Image *currImage){
 
 
     //create line
-    currImage->line(finalX, finalY, finalY, finalY, 0, 1, 0);
+    //currImage->line(finalX, finalY, finalY, finalY, 0, 1, 0);
     //fprintf(stderr, "Feature #%d\n", index );
   }
     delete secondImage;
@@ -1108,11 +1108,11 @@ findMatchingFeatures(R2Image* prevImage, R2Image *currImage){
 
 
 vector<Feature> R2Image::
-blendOtherImageHomography(R2Image *otherImage)
+blendOtherImageHomography(R2Image *prevImage, R2Image *currImage)
 {
 
   int count = 0;
-  double threshhold = 7.0;
+  double threshhold = 9.0;
 
   vector<int> badFeatures;
   vector<int> finalBadFeatures;
@@ -1127,10 +1127,10 @@ blendOtherImageHomography(R2Image *otherImage)
 
   //R2Image firstImage(*this);
   // firstImage.Harris(2.0);
-  //matchingFeatures = findMatchingFeatures(otherImage);
+  matchingFeatures = findMatchingFeatures(prevImage, currImage);
   fprintf(stderr, "Matching Features Size: %lu\n",  matchingFeatures.size());
 
-  R2Image secondImage(*otherImage);
+  R2Image secondImage(*currImage);
   R2Image thirdImage(*this);
 
   int randIndex1;
@@ -1311,7 +1311,7 @@ blendOtherImageHomography(R2Image *otherImage)
  //
  //    //finalFeatures.push_back(matchingFeatures[finalGoodFeatures[k]]);
  //
- //    otherImage->line(stopX, startX, stopY, startY, 0, 1, 0);
+ //    currImage->line(stopX, startX, stopY, startY, 0, 1, 0);
  // }
 
 
@@ -1334,8 +1334,8 @@ blendOtherImageHomography(R2Image *otherImage)
   // 0 0 1
 
 
-/**
-    R2Image *warpFrom = new R2Image(*otherImage);
+
+    R2Image *warpFrom = new R2Image(*currImage);
 
    // double** bestMatrix = dmatrix(1,3,1,3);
    //  bestMatrix[1][1] = bestHMatrix[0];
@@ -1438,7 +1438,7 @@ blendOtherImageHomography(R2Image *otherImage)
 
         if((xround < 0 || xround >= width) || (yround < 0 || yround >= height) ){
           //fprintf(stderr, "Out of Bounds: <%d, %d>\n", xround, yround);
-          otherImage->Pixel(i,j).Reset(1, 1, 1, 1);
+          currImage->Pixel(i,j).Reset(1, 1, 1, 1);
         } else {
           //fprintf(stderr, "IN BOUNDS: <%d, %d>\n", xround, yround);
 
@@ -1447,7 +1447,7 @@ blendOtherImageHomography(R2Image *otherImage)
           double blueAvg = (Pixel(i, j).Blue() + warpFrom->Pixel(xResult2, yResult2).Blue())/2;
           double greenAvg = (Pixel(i, j).Green() + warpFrom->Pixel(xResult2, yResult2).Green())/2;
 
-          otherImage->Pixel(i,j).Reset(redAvg, greenAvg, blueAvg, 1);
+          currImage->Pixel(i,j).Reset(redAvg, greenAvg, blueAvg, 1);
         }
       }
 
@@ -1457,7 +1457,6 @@ blendOtherImageHomography(R2Image *otherImage)
   delete warpFrom;
 
   //prevImgFeatures.clear();
-**/
   // prevImgFeatures.clear();
   // prevImgFeatures = matchingFeatures;
 
@@ -1472,7 +1471,7 @@ FirstFrameProcessing(){
   local_firstImage->Harris(2.0);
   prevImgFeatures = featuresVec;
 
-  prevImgFeatures = findMatchingFeatures(this, this);
+  prevImgFeatures = blendOtherImageHomography(this, this);
 
 }
 
@@ -1484,7 +1483,7 @@ FrameProcessing(R2Image *prevImage, R2Image *currImage, int i){
     local_latestImage = new R2Image(*prevImage);
   }
 
-  prevImgFeatures = local_latestImage->findMatchingFeatures(local_latestImage, currImage);
+  prevImgFeatures = blendOtherImageHomography(local_latestImage, currImage);
 
 }
 

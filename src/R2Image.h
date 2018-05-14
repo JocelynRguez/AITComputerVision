@@ -128,7 +128,7 @@ class R2Image {
 
   // further operations
   void blendOtherImageTranslated(R2Image * otherImage);
-  vector<Feature> blendOtherImageHomography(R2Image * otherImage);
+  vector<Feature> blendOtherImageHomography(R2Image *prevImage, R2Image *currentImage);
 
   //image processing
   void imageProcessing(R2Image *firstImage);

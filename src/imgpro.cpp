@@ -323,7 +323,7 @@ main(int argc, char **argv)
       CheckOption(*argv, argc, 2);
       R2Image *other_image = new R2Image(argv[1]);
       argv += 2, argc -= 2;
-      image->blendOtherImageHomography(other_image);
+      image->blendOtherImageHomography(other_image, image);
       delete other_image;
     }
     else {
