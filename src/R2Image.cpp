@@ -1388,12 +1388,14 @@ FirstFrameProcessing(){
 
 void R2Image::
 FrameProcessing(R2Image *prevImage, R2Image *currImage, int i){
+  //keep track of prevImg
   if(i == 0){
     local_latestImage = new R2Image(*this);
   } else{
     local_latestImage = new R2Image(*prevImage);
   }
 
+  //save the prevImgFeatures in order to track current image features
   prevImgFeatures = blendOtherImageHomography(local_latestImage, currImage);
 
 }
