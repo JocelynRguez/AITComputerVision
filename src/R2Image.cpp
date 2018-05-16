@@ -1329,38 +1329,45 @@ blendOtherImageHomography(R2Image *prevImage, R2Image *currImage, R2Image *warpI
         //   currImage->Pixel(i,j).Reset(1, 0, 0, 1);
         // }
 
-        currImage->Pixel(i,j)*= weight;
-        currImage->Pixel(i,j).Clamp();
-        // xVal2 = 0.0;
-        // yVal2 = 0.0;
-        // zVal2 = 0.0;
-        //
-        // xVal2 = invMatrix[1][1]*i + invMatrix[1][2]*j + invMatrix[1][3];
-        // yVal2 = invMatrix[2][1]*i + invMatrix[2][2]*j + invMatrix[2][3];
-        // zVal2 = invMatrix[3][1]*i + invMatrix[3][2]*j + invMatrix[3][3];
-        //
-        // xResult2 = xVal2/zVal2;
-        // yResult2 = yVal2/zVal2;
-        //
-        //
-        // int xround = (int) xResult2;
-        // int yround = (int) yResult2;
-        //
-        //
-        // if((xround < 0 || xround >= width) || (yround < 0 || yround >= height) ){
-        //   //fprintf(stderr, "Out of Bounds: <%d, %d>\n", xround, yround);
-        //   currImage->Pixel(i,j).Reset(1, 1, 1, 1);
-        // } else {
-        //   //fprintf(stderr, "IN BOUNDS: <%d, %d>\n", xround, yround);
-        //
-        //
-        //   double redAvg = (warpTo->Pixel(i, j).Red() + warpFrom->Pixel(xResult2, yResult2).Red())/2;
-        //   double blueAvg = (warpTo->Pixel(i, j).Blue() + warpFrom->Pixel(xResult2, yResult2).Blue())/2;
-        //   double greenAvg = (warpTo->Pixel(i, j).Green() + warpFrom->Pixel(xResult2, yResult2).Green())/2;
-        //
-        //   //warp onto current image
-        //   currImage->Pixel(i,j).Reset(redAvg, greenAvg, blueAvg, 1);
-        // }
+        warpTo->Pixel(i,j)*= weight;
+        warpTo->Pixel(i,j).Clamp();
+
+        xVal2 = 0.0;
+        yVal2 = 0.0;
+        zVal2 = 0.0;
+
+        xVal2 = invMatrix[1][1]*i + invMatrix[1][2]*j + invMatrix[1][3];
+        yVal2 = invMatrix[2][1]*i + invMatrix[2][2]*j + invMatrix[2][3];
+        zVal2 = invMatrix[3][1]*i + invMatrix[3][2]*j + invMatrix[3][3];
+
+        xResult2 = xVal2/zVal2;
+        yResult2 = yVal2/zVal2;
+
+
+        int xround = (int) xResult2;
+        int yround = (int) yResult2;
+
+
+        if((xround < 0 || xround >= width) || (yround < 0 || yround >= height) ){
+          //fprintf(stderr, "Out of Bounds: <%d, %d>\n", xround, yround);
+          // currImage->Pixel(i,j).Reset(1, 1, 1, 1);
+        } else {
+          //fprintf(stderr, "IN BOUNDS: <%d, %d>\n", xround, yround);
+
+          if(warpTo->Pixel(i,j).Luminance() > 0.005){
+            double redAvg = warpFrom->Pixel(xResult2, yResult2).Red();
+            //(warpTo->Pixel(i, j).Red() + warpFrom->Pixel(xResult2, yResult2).Red())/2;
+            double blueAvg = warpFrom->Pixel(xResult2, yResult2).Blue();
+            //(warpTo->Pixel(i, j).Blue() + warpFrom->Pixel(xResult2, yResult2).Blue())/2;
+            double greenAvg = warpFrom->Pixel(xResult2, yResult2).Green();
+            //(warpTo->Pixel(i, j).Green() + warpFrom->Pixel(xResult2, yResult2).Green())/2;
+
+            //warp onto current image
+            currImage->Pixel(i,j).Reset(redAvg, greenAvg, blueAvg, 1);
+          }
+
+
+        }
       }
 
     }
