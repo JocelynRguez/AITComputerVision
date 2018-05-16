@@ -145,37 +145,55 @@ main(int argc, char **argv)
    if (!strcmp(argv[i], "-video")) {
 		printf("Video processing started\n");
 
-		char inputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videoinput/givenTest/input%07d.jpg";
-		char outputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videooutput/givenTestResult/output%07d.jpg";
+		char inputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videoinput/testBuildingInput/input%07d.jpg";
+		char outputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videooutput/testBuildingOutput/output%07d.jpg";
+
+  	char warpName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videoinput/up.jpg";
 
 		R2Image *mainImage = new R2Image();
+    R2Image *warpImage = new R2Image();
 		char currentFilename[150];
 		char currentOutputFilename[150];
 
+    char warpFilename[150];
+    char warpOutputFilename[150];
+    //
     char nextFilename[150];
     char nextOutputFilename[150];
+
 
 		if (!mainImage) {
 			fprintf(stderr, "Unable to allocate image\n");
 			exit(-1);
 		}
-		// read very first frame
-		sprintf(currentFilename, inputName, 0);
-    sprintf(currentOutputFilename, outputName, 0);
+
+    if (!warpImage) {
+      fprintf(stderr, "Unable to allocate image\n");
+      exit(-1);
+    }
+		// // read very first frame
+		sprintf(currentFilename, inputName, 1);
+    sprintf(currentOutputFilename, outputName, 1);
+
+    sprintf(warpFilename, warpName, 0);
+    sprintf(warpOutputFilename, outputName, 0);
 
 		if (!mainImage->Read(currentFilename)) {
 			fprintf(stderr, "Unable to read first image\n");
 			exit(-1);
 		}
 
-
+    if (!warpImage->Read(warpFilename)) {
+      fprintf(stderr, "Unable to read first image\n");
+      exit(-1);
+    }
 
 
 		// =============== VIDEO PROCESSING ===============
 
 		// mainImage->Blur(3.0f);
 		// here you could call mainImage->FirstFrameProcessing( );
-    mainImage->FirstFrameProcessing();
+    mainImage->FirstFrameProcessing(warpImage);
 
     //write back to image
     if (!mainImage->Write(currentOutputFilename)) {
@@ -184,8 +202,8 @@ main(int argc, char **argv)
     }
 
 
-		int end = 88;
-		for (int i = 0; i < end-1; i++)
+		int end = 90;
+		for (int i = 1; i < end-1; i++)
 		{
 			R2Image *currentImage = new R2Image();
 			if (!currentImage) {
@@ -219,7 +237,7 @@ main(int argc, char **argv)
 			//currentImage->Brighten((float)i/(float)end);
 			// here you could call
 			//
-			mainImage->FrameProcessing(currentImage, nextImage, i);
+			mainImage->FrameProcessing(currentImage, nextImage, warpImage, i);
 			//
       //currentImage->FrameProcessing(mainImage);
 
@@ -323,7 +341,7 @@ main(int argc, char **argv)
       CheckOption(*argv, argc, 2);
       R2Image *other_image = new R2Image(argv[1]);
       argv += 2, argc -= 2;
-      image->blendOtherImageHomography(other_image, image);
+      image->blendOtherImageHomography(other_image, image, image);
       delete other_image;
     }
     else {

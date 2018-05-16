@@ -128,14 +128,16 @@ class R2Image {
 
   // further operations
   void blendOtherImageTranslated(R2Image * otherImage);
-  vector<Feature> blendOtherImageHomography(R2Image *prevImage, R2Image *currentImage);
+  vector<Feature> blendOtherImageHomography(R2Image *prevImage, R2Image *currentImage, R2Image *warpImage);
 
   //image processing
   void imageProcessing(R2Image *firstImage);
 
   //video processing
-  void FirstFrameProcessing();
-  void FrameProcessing(R2Image *prevImage, R2Image *currentImage, int i);
+  void FirstFrameProcessing(R2Image *warpImage);
+  void FrameProcessing(R2Image *prevImage, R2Image *currentImage, R2Image *warpImage, int i);
+
+  void makeMask(R2Image *currentImage);
 
   // File reading/writing
   int Read(const char *filename);

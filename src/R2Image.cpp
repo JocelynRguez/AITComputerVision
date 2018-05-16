@@ -1094,7 +1094,7 @@ findMatchingFeatures(R2Image* prevImage, R2Image *currImage){
 
 
 vector<Feature> R2Image::
-blendOtherImageHomography(R2Image *prevImage, R2Image *currImage)
+blendOtherImageHomography(R2Image *prevImage, R2Image *currImage, R2Image *warpImage)
 {
 
   int count = 0;
@@ -1290,21 +1290,10 @@ blendOtherImageHomography(R2Image *prevImage, R2Image *currImage)
  //
  //    currImage->line(stopX, startX, stopY, startY, 0, 1, 0);
  // }
-
-
-  // for(int j = 0; j < finalBadFeatures.size(); j++){
-  //   int startX = featuresVec[finalBadFeatures[j]].centerX;
-  //   int startY = featuresVec[finalBadFeatures[j]].centerY;
-  //   int stopX = matchingFeatures[finalBadFeatures[j]].centerX;
-  //   int stopY = matchingFeatures[finalBadFeatures[j]].centerY;
-  //
-  //   otherImage->line(stopX, startX, stopY, startY, 1, 0, 0);
-  // }
-
-
+    fprintf(stderr, "WarpImage Height: %d, Width: %d\n", warpImage->height, warpImage->width);
     //image we are warping with original image
-    R2Image *warpFrom = new R2Image(*currImage);
-
+    R2Image *warpFrom = new R2Image(*warpImage);
+    R2Image *warpTo = new R2Image(*currImage);
     //updating inverse matrix for warp
     double** invMatrix = dmatrix(1,3,1,3);
      invMatrix[1][1] = best[0];
@@ -1330,36 +1319,48 @@ blendOtherImageHomography(R2Image *prevImage, R2Image *currImage)
     for(int i = 0; i < width; i++){
       for(int j = 0; j < height; j++){
 
-        xVal2 = 0.0;
-        yVal2 = 0.0;
-        zVal2 = 0.0;
+        double brightness = ((warpTo->Pixel(i,j).Blue()) - 0.5)*2;
 
-        xVal2 = invMatrix[1][1]*i + invMatrix[1][2]*j + invMatrix[1][3];
-        yVal2 = invMatrix[2][1]*i + invMatrix[2][2]*j + invMatrix[2][3];
-        zVal2 = invMatrix[3][1]*i + invMatrix[3][2]*j + invMatrix[3][3];
+        double weight = brightness;
+        //*((height-j)/ (double) height);
+      //  fprintf(stderr, "Pixel (%d, %d) weight: %f\n", i, j, weight);
 
-        xResult2 = xVal2/zVal2;
-        yResult2 = yVal2/zVal2;
+        // if(weight > 0.15){
+        //   currImage->Pixel(i,j).Reset(1, 0, 0, 1);
+        // }
 
-
-        int xround = (int) xResult2;
-        int yround = (int) yResult2;
-
-
-        if((xround < 0 || xround >= width) || (yround < 0 || yround >= height) ){
-          //fprintf(stderr, "Out of Bounds: <%d, %d>\n", xround, yround);
-          currImage->Pixel(i,j).Reset(1, 1, 1, 1);
-        } else {
-          //fprintf(stderr, "IN BOUNDS: <%d, %d>\n", xround, yround);
-
-
-          double redAvg = (Pixel(i, j).Red() + warpFrom->Pixel(xResult2, yResult2).Red())/2;
-          double blueAvg = (Pixel(i, j).Blue() + warpFrom->Pixel(xResult2, yResult2).Blue())/2;
-          double greenAvg = (Pixel(i, j).Green() + warpFrom->Pixel(xResult2, yResult2).Green())/2;
-
-          //warp onto current image
-          currImage->Pixel(i,j).Reset(redAvg, greenAvg, blueAvg, 1);
-        }
+        currImage->Pixel(i,j)*= weight;
+        currImage->Pixel(i,j).Clamp();
+        // xVal2 = 0.0;
+        // yVal2 = 0.0;
+        // zVal2 = 0.0;
+        //
+        // xVal2 = invMatrix[1][1]*i + invMatrix[1][2]*j + invMatrix[1][3];
+        // yVal2 = invMatrix[2][1]*i + invMatrix[2][2]*j + invMatrix[2][3];
+        // zVal2 = invMatrix[3][1]*i + invMatrix[3][2]*j + invMatrix[3][3];
+        //
+        // xResult2 = xVal2/zVal2;
+        // yResult2 = yVal2/zVal2;
+        //
+        //
+        // int xround = (int) xResult2;
+        // int yround = (int) yResult2;
+        //
+        //
+        // if((xround < 0 || xround >= width) || (yround < 0 || yround >= height) ){
+        //   //fprintf(stderr, "Out of Bounds: <%d, %d>\n", xround, yround);
+        //   currImage->Pixel(i,j).Reset(1, 1, 1, 1);
+        // } else {
+        //   //fprintf(stderr, "IN BOUNDS: <%d, %d>\n", xround, yround);
+        //
+        //
+        //   double redAvg = (warpTo->Pixel(i, j).Red() + warpFrom->Pixel(xResult2, yResult2).Red())/2;
+        //   double blueAvg = (warpTo->Pixel(i, j).Blue() + warpFrom->Pixel(xResult2, yResult2).Blue())/2;
+        //   double greenAvg = (warpTo->Pixel(i, j).Green() + warpFrom->Pixel(xResult2, yResult2).Green())/2;
+        //
+        //   //warp onto current image
+        //   currImage->Pixel(i,j).Reset(redAvg, greenAvg, blueAvg, 1);
+        // }
       }
 
     }
@@ -1376,18 +1377,24 @@ blendOtherImageHomography(R2Image *prevImage, R2Image *currImage)
 }
 
 void R2Image::
-FirstFrameProcessing(){
+makeMask(R2Image *currentImage){
+
+}
+
+
+void R2Image::
+FirstFrameProcessing(R2Image *warpImage){
   local_firstImage = new R2Image(*this);
   local_latestImage = new R2Image(*this);
   local_firstImage->Harris(2.0);
   prevImgFeatures = featuresVec;
 
-  prevImgFeatures = blendOtherImageHomography(this, this);
+  prevImgFeatures = blendOtherImageHomography(this, this, warpImage);
 
 }
 
 void R2Image::
-FrameProcessing(R2Image *prevImage, R2Image *currImage, int i){
+FrameProcessing(R2Image *prevImage, R2Image *currImage, R2Image *warpImage, int i){
   //keep track of prevImg
   if(i == 0){
     local_latestImage = new R2Image(*this);
@@ -1396,7 +1403,7 @@ FrameProcessing(R2Image *prevImage, R2Image *currImage, int i){
   }
 
   //save the prevImgFeatures in order to track current image features
-  prevImgFeatures = blendOtherImageHomography(local_latestImage, currImage);
+  prevImgFeatures = blendOtherImageHomography(local_latestImage, currImage, warpImage);
 
 }
 
