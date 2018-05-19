@@ -145,10 +145,10 @@ main(int argc, char **argv)
    if (!strcmp(argv[i], "-video")) {
 		printf("Video processing started\n");
 
-		char inputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videoinput/testBuildingInput/input%07d.jpg";
-		char outputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videooutput/testBuildingOutput/output%07d.jpg";
+		char inputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videoinput/circular/input%07d.jpg";
+		char outputName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videooutput/circular/output%07d.jpg";
 
-  	char warpName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videoinput/up.jpg";
+  	char warpName[150] = "/Users/jocelynrodriguez/Desktop/AIT2018_ComputerVision/videoinput/colors.jpg";
 
 		R2Image *mainImage = new R2Image();
     R2Image *warpImage = new R2Image();
@@ -202,7 +202,7 @@ main(int argc, char **argv)
     }
 
 
-		int end = 90;
+		int end = 121;
 		for (int i = 1; i < end-1; i++)
 		{
 			R2Image *currentImage = new R2Image();

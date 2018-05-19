@@ -548,7 +548,7 @@ filterHarris(vector<Feature> values){
 
     int currX;
     int currY;
-    int offset = 5;
+
 
     R2Image tempImg(*this);
 
@@ -1045,8 +1045,8 @@ findMatchingFeatures(R2Image* prevImage, R2Image *currImage){
     finalY = currY;
     finalSSD = 5000000000;
 
-    int swidth = 0.02*width;
-    int sheight = 0.02*height;
+    int swidth = 0.08*width;
+    int sheight = 0.08*height;
 
 
     //go through %20 of image size (search area)
@@ -1059,10 +1059,13 @@ findMatchingFeatures(R2Image* prevImage, R2Image *currImage){
            for(int i = -window; i <= window; i++){
              for(int j = -window; j <= window ; j++){
 
-              sum1 = thirdImage->Pixel(currX+i, currY+j).Red()+thirdImage->Pixel(currX+i, currY+j).Green() + thirdImage->Pixel(currX+i, currY+j).Blue();
-              sum2 = secondImage->Pixel(x+i, y+j).Red() +secondImage->Pixel(x+i, y+j).Green() + secondImage->Pixel(x+i, y+j).Blue();
+              // sum1 = thirdImage->Pixel(currX+i, currY+j).Red()+thirdImage->Pixel(currX+i, currY+j).Green() + thirdImage->Pixel(currX+i, currY+j).Blue();
+              // sum2 = secondImage->Pixel(x+i, y+j).Red() +secondImage->Pixel(x+i, y+j).Green() + secondImage->Pixel(x+i, y+j).Blue();
 
+              sum1 = thirdImage->Pixel(currX+i, currY+j).Luminance();
+              sum2 = secondImage->Pixel(x+i, y+j).Luminance();
 
+              //diff = thirdImage->Pixel(currX+i, currY+i).Red() -
               //compute ssd
              diff = sum2 - sum1;
              ssd += (diff*diff);
@@ -1092,13 +1095,14 @@ findMatchingFeatures(R2Image* prevImage, R2Image *currImage){
     return matchingFeatures;
 }
 
-
+//warp_weight is changed in FrameProcessing()
+double warp_weight;
 vector<Feature> R2Image::
 blendOtherImageHomography(R2Image *prevImage, R2Image *currImage, R2Image *warpImage)
 {
 
   int count = 0;
-  double threshhold = 9.0;
+  double threshhold = 8.0;
 
   vector<int> badFeatures;
   vector<int> finalBadFeatures;
@@ -1112,7 +1116,7 @@ blendOtherImageHomography(R2Image *prevImage, R2Image *currImage, R2Image *warpI
 
   //get matching features
   matchingFeatures = findMatchingFeatures(prevImage, currImage);
-  fprintf(stderr, "Matching Features Size: %lu\n",  matchingFeatures.size());
+  //fprintf(stderr, "Matching Features Size: %lu\n",  matchingFeatures.size());
 
   R2Image secondImage(*currImage);
   R2Image thirdImage(*this);
@@ -1142,7 +1146,7 @@ blendOtherImageHomography(R2Image *prevImage, R2Image *currImage, R2Image *warpI
   int maxInliers = 0;
 
   int size = featuresVec.size();
-  fprintf(stderr, "FeaturesVec size: %lu\n", featuresVec.size());
+  //fprintf(stderr, "FeaturesVec size: %lu\n", featuresVec.size());
 
   while(count < 1000){
 
@@ -1232,7 +1236,7 @@ blendOtherImageHomography(R2Image *prevImage, R2Image *currImage, R2Image *warpI
       finalGoodFeaturesEnd = goodFeaturesEnd;
       finalBadFeatures = badFeatures;
       bestHMatrix = hValues;
-      // fprintf(stderr, "\nMaxInliers: %d\n", maxInliers );
+      //fprintf(stderr, "\nMaxInliers: %d\n", maxInliers );
       //
       // fprintf(stderr, "\n\nBest H Matrix:\n");
       // fprintf(stderr, "%f %f %f\n", bestHMatrix[0], bestHMatrix[1], bestHMatrix[2]);
@@ -1260,20 +1264,21 @@ blendOtherImageHomography(R2Image *prevImage, R2Image *currImage, R2Image *warpI
     goodFeaturesEnd.clear();
     badFeatures.clear();
   }
-  //using the inlier points create a more refined H matrix for the image
-  vector<double> best = svdTest(finalGoodFeaturesStart, finalGoodFeaturesEnd);
-
-  fprintf(stderr, "\n\nInverse H Matrix:\n");
-  fprintf(stderr, "%f %f %f\n", best[0], best[1], best[2]);
-  fprintf(stderr, "%f %f %f\n", best[3], best[4], best[5]);
-  fprintf(stderr, "%f %f %f\n", best[6], best[7], best[8]);
-
-  fprintf(stderr, "\n\nFinal Best H Matrix:\n");
-  fprintf(stderr, "%f %f %f\n", bestHMatrix[0], bestHMatrix[1], bestHMatrix[2]);
-  fprintf(stderr, "%f %f %f\n", bestHMatrix[3], bestHMatrix[4], bestHMatrix[5]);
-  fprintf(stderr, "%f %f %f\n", bestHMatrix[6], bestHMatrix[7], bestHMatrix[8]);
-
-
+  //using the inlier points create a more refined H matrix for the image, to get
+  //an inverse warping pass in the features in reverse
+  vector<double> best = svdTest(finalGoodFeaturesEnd, finalGoodFeaturesStart);
+  //
+  // fprintf(stderr, "\n\nInverse H Matrix:\n");
+  // fprintf(stderr, "%f %f %f\n", best[0], best[1], best[2]);
+  // fprintf(stderr, "%f %f %f\n", best[3], best[4], best[5]);
+  // fprintf(stderr, "%f %f %f\n", best[6], best[7], best[8]);
+  //
+  // fprintf(stderr, "\n\nFinal Best H Matrix:\n");
+  // fprintf(stderr, "%f %f %f\n", bestHMatrix[0], bestHMatrix[1], bestHMatrix[2]);
+  // fprintf(stderr, "%f %f %f\n", bestHMatrix[3], bestHMatrix[4], bestHMatrix[5]);
+  // fprintf(stderr, "%f %f %f\n", bestHMatrix[6], bestHMatrix[7], bestHMatrix[8]);
+  //
+  //
   fprintf(stderr, "finalGoodFeatures size: %lu\n", finalGoodFeatures.size());
   fprintf(stderr, "finalBadFeatures siez: %lu\n", finalBadFeatures.size());
 
@@ -1290,10 +1295,13 @@ blendOtherImageHomography(R2Image *prevImage, R2Image *currImage, R2Image *warpI
  //
  //    currImage->line(stopX, startX, stopY, startY, 0, 1, 0);
  // }
-    fprintf(stderr, "WarpImage Height: %d, Width: %d\n", warpImage->height, warpImage->width);
+    //fprintf(stderr, "WarpImage Height: %d, Width: %d\n", warpImage->height, warpImage->width);
+
+
     //image we are warping with original image
     R2Image *warpFrom = new R2Image(*warpImage);
     R2Image *warpTo = new R2Image(*currImage);
+
     //updating inverse matrix for warp
     double** invMatrix = dmatrix(1,3,1,3);
      invMatrix[1][1] = best[0];
@@ -1320,17 +1328,11 @@ blendOtherImageHomography(R2Image *prevImage, R2Image *currImage, R2Image *warpI
       for(int j = 0; j < height; j++){
 
         double brightness = ((warpTo->Pixel(i,j).Blue()) - 0.5)*2;
-
         double weight = brightness;
-        //*((height-j)/ (double) height);
-      //  fprintf(stderr, "Pixel (%d, %d) weight: %f\n", i, j, weight);
+        //* ((height - j)/((double) height));
 
-        // if(weight > 0.15){
-        //   currImage->Pixel(i,j).Reset(1, 0, 0, 1);
-        // }
-
-        warpTo->Pixel(i,j)*= weight;
-        warpTo->Pixel(i,j).Clamp();
+        currImage->Pixel(i,j)*= weight;
+        currImage->Pixel(i,j).Clamp();
 
         xVal2 = 0.0;
         yVal2 = 0.0;
@@ -1340,21 +1342,22 @@ blendOtherImageHomography(R2Image *prevImage, R2Image *currImage, R2Image *warpI
         yVal2 = invMatrix[2][1]*i + invMatrix[2][2]*j + invMatrix[2][3];
         zVal2 = invMatrix[3][1]*i + invMatrix[3][2]*j + invMatrix[3][3];
 
-        xResult2 = xVal2/zVal2;
-        yResult2 = yVal2/zVal2;
+        xResult2 = xVal2/zVal2 + 1000;
+        yResult2 = yVal2/zVal2 + 600;
 
-
-        int xround = (int) xResult2;
+        //points to get warped values
+        int xround = (int) xResult2 ;
         int yround = (int) yResult2;
 
 
-        if((xround < 0 || xround >= width) || (yround < 0 || yround >= height) ){
+        if((xround < 0 || xround >= warpFrom->width) || (yround < 0 || yround >= warpFrom->height) ){
           //fprintf(stderr, "Out of Bounds: <%d, %d>\n", xround, yround);
-          // currImage->Pixel(i,j).Reset(1, 1, 1, 1);
+           //currImage->Pixel(i,j).Reset(0, 0, 0, 1);
         } else {
-          //fprintf(stderr, "IN BOUNDS: <%d, %d>\n", xround, yround);
 
-          if(warpTo->Pixel(i,j).Luminance() > 0.005){
+
+          if(warpTo->Pixel(i,j).Luminance() > warp_weight){
+            fprintf(stderr, "NEW WEIGHT: %f\n", );
             double redAvg = warpFrom->Pixel(xResult2, yResult2).Red();
             //(warpTo->Pixel(i, j).Red() + warpFrom->Pixel(xResult2, yResult2).Red())/2;
             double blueAvg = warpFrom->Pixel(xResult2, yResult2).Blue();
@@ -1364,6 +1367,7 @@ blendOtherImageHomography(R2Image *prevImage, R2Image *currImage, R2Image *warpI
 
             //warp onto current image
             currImage->Pixel(i,j).Reset(redAvg, greenAvg, blueAvg, 1);
+            currImage->Pixel(i,j) = warpTo->Pixel(i,j);
           }
 
 
@@ -1372,12 +1376,9 @@ blendOtherImageHomography(R2Image *prevImage, R2Image *currImage, R2Image *warpI
 
     }
 
-
+  //free copied images
   delete warpFrom;
-
-  //prevImgFeatures.clear();
-  // prevImgFeatures.clear();
-  // prevImgFeatures = matchingFeatures;
+  delete warpTo;
 
 	fprintf(stderr, "fit other image using a homography and blend imageB over imageA\n");
 	return matchingFeatures;
@@ -1389,6 +1390,7 @@ makeMask(R2Image *currentImage){
 }
 
 
+
 void R2Image::
 FirstFrameProcessing(R2Image *warpImage){
   local_firstImage = new R2Image(*this);
@@ -1396,6 +1398,8 @@ FirstFrameProcessing(R2Image *warpImage){
   local_firstImage->Harris(2.0);
   prevImgFeatures = featuresVec;
 
+  warp_weight = 0.0005;
+  //prevImgFeatures = findMatchingFeatures(this, this);
   prevImgFeatures = blendOtherImageHomography(this, this, warpImage);
 
 }
@@ -1409,7 +1413,12 @@ FrameProcessing(R2Image *prevImage, R2Image *currImage, R2Image *warpImage, int 
     local_latestImage = new R2Image(*prevImage);
   }
 
+  if(i == 24){
+    warp_weight = 0.05;
+  }
+
   //save the prevImgFeatures in order to track current image features
+  //prevImgFeatures = findMatchingFeatures(local_latestImage, currImage);
   prevImgFeatures = blendOtherImageHomography(local_latestImage, currImage, warpImage);
 
 }
